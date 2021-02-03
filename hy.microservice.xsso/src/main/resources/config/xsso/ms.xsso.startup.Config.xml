@@ -14,7 +14,7 @@
         <startupConfig id="StartupConfig_MS_XSSO">
             
             <item>
-                <value>ms.xsso.appKey.Config.xml</value>
+                <value>config/xsso/ms.xsso.appKey.Config.xml</value>
             </item>
             
         </startupConfig>

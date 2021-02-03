@@ -19,6 +19,21 @@
                 <comment>顶级包的路径。用于初始化。一般不修改</comment>
             </item>
             
+            
+            <item id="MS_XSSO_TokenTimeOut">
+                <name>MS_XSSO_TokenTimeOut</name>
+                <value>7200</value>
+                <comment>票据有效时长（单位：秒）</comment>
+            </item>
+            
+            
+            <item id="MS_XSSO_CodeTimeOut">
+                <name>MS_XSSO_CodeTimeOut</name>
+                <value>300</value>
+                <comment>临时登录Code有效时长（单位：秒）</comment>
+            </item>
+            
+            
         </xparam>
         
     </xconfig>

@@ -32,7 +32,10 @@ public class TokenInfo extends BaseViewMode
     
     /** 过期时长（单位：秒） */
     private Integer expire;
-
+    
+    /** 临时登录Code */
+    private String  code;
+    
     
     
     /**
@@ -132,6 +135,26 @@ public class TokenInfo extends BaseViewMode
     public void setExpire(Integer expire)
     {
         this.expire = expire;
+    }
+
+
+    /**
+     * 获取：临时登录Code
+     */
+    public String getCode()
+    {
+        return code;
+    }
+
+
+    /**
+     * 设置：临时登录Code
+     * 
+     * @param code 
+     */
+    public void setCode(String code)
+    {
+        this.code = code;
     }
 
 }

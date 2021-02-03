@@ -140,60 +140,6 @@ public class BaseViewMode extends SerializableDef
     
     
     /**
-     * 创建时间
-     * 
-     * @return
-     */
-    public String getCreateTimeStr()
-    {
-        if ( this.createTime == null )
-        {
-            return "";
-        }
-        else
-        {
-            return this.createTime.getYMD();
-        }
-    }
-    
-    
-    /**
-     * 修改时间
-     * 
-     * @return
-     */
-    public String getUpdateTimeStr()
-    {
-        if ( this.updateTime == null )
-        {
-            return "";
-        }
-        else
-        {
-            return this.updateTime.getYMD();
-        }
-    }
-    
-    
-    /**
-     * 审核时间
-     * 
-     * @return
-     */
-    public String getAuditTimeStr()
-    {
-        if ( this.auditTime == null )
-        {
-            return "";
-        }
-        else
-        {
-            return this.auditTime.getYMD();
-        }
-    }
-
-    
-    /**
      * 获取：设备号
      */
     public String getDeviceNo()
