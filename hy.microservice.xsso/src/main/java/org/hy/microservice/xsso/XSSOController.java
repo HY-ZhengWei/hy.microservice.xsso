@@ -155,7 +155,7 @@ public class XSSOController
         
         if ( Help.isNull(i_Token.getTimestamp()) 
           || i_Token.getTimestamp() > v_Now + 1000 * 60
-          || i_Token.getTimestamp() < v_Now - Integer.parseInt(tokenTimeOut.getValue()) ) 
+          || i_Token.getTimestamp() < v_Now - Integer.parseInt(tokenTimeOut.getValue()) * 1000 ) 
         {
             return v_RetResp.setCode("-3").setMessage("时间戳无效或已过期");
         }
@@ -258,7 +258,49 @@ public class XSSOController
         
         userService.setUser(v_Token ,i_UserSSO);
         
+        long v_Expire = $TokenIDToAppKeys.getExpireTimeLen(v_Token) / 1000;
+        v_RetResp.setData(new TokenInfo());
+        v_RetResp.getData().getData().setExpire((int)v_Expire);
+        
         return v_RetResp;
+    }
+    
+    
+    
+    /**
+     * 获取登录用户信息
+     * 
+     * @author      ZhengWei(HY)
+     * @createDate  2021-02-03
+     * @version     v1.0
+     *
+     * @param i_Token  票据号
+     * @return
+     */
+    @RequestMapping(value="getLoginUser" ,method={RequestMethod.GET})
+    @ResponseBody
+    public BaseResponse<UserSSO> etLoginUser(@RequestParam("token") String i_Token)
+    {
+        BaseResponse<UserSSO> v_RetResp = new BaseResponse<UserSSO>();
+        
+        if ( Help.isNull(i_Token) )
+        {
+            return v_RetResp.setCode("-1").setMessage("票据无效或已过期");
+        }
+        
+        String v_AppKey = $TokenIDToAppKeys.get(i_Token);
+        if ( Help.isNull(v_AppKey) )
+        {
+            return v_RetResp.setCode("-1").setMessage("票据无效或已过期");
+        }
+        
+        UserSSO v_User = this.userService.getUser(i_Token);
+        if ( v_User == null )
+        {
+            return v_RetResp.setCode("-1").setMessage("票据无效或已过期");
+        }
+        
+        return v_RetResp.setData(v_User);
     }
     
 }

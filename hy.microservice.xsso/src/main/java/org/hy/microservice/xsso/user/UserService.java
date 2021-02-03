@@ -35,8 +35,7 @@ public class UserService
     /**
      * 票据有效时长（单位：秒）
      */
-    @Autowired
-    @Qualifier("MS_XSSO_TokenTimeOut")
+    @Xjava(ref="MS_XSSO_TokenTimeOut")
     private Param tokenTimeOut;
     
     
