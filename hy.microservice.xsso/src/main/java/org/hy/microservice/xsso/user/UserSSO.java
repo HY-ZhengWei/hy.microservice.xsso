@@ -32,6 +32,12 @@ public class UserSSO extends SerializableDef
     /** 用户在第三方系统的编码 */
     private String userCode;
     
+    /** 微信用户应用ID */
+    private String openID;
+        
+    /** 微信用户统一ID */
+    private String unionID;
+    
     /** 用户在第三方系统的手机号 */
     private String mobile;
     
@@ -479,6 +485,46 @@ public class UserSSO extends SerializableDef
     public void setNickname(String nickname)
     {
         this.nickname = nickname;
+    }
+
+
+    /**
+     * 获取：微信用户应用ID
+     */
+    public String getOpenID()
+    {
+        return openID;
+    }
+
+    
+    /**
+     * 获取：微信用户统一ID
+     */
+    public String getUnionID()
+    {
+        return unionID;
+    }
+
+    
+    /**
+     * 设置：微信用户应用ID
+     * 
+     * @param openID 
+     */
+    public void setOpenID(String openID)
+    {
+        this.openID = openID;
+    }
+
+
+    /**
+     * 设置：微信用户统一ID
+     * 
+     * @param unionID 
+     */
+    public void setUnionID(String unionID)
+    {
+        this.unionID = unionID;
     }
     
 }

@@ -155,7 +155,7 @@ public class XSSOController
         
         if ( Help.isNull(i_Token.getTimestamp()) 
           || i_Token.getTimestamp() > v_Now + 1000 * 60
-          || i_Token.getTimestamp() < v_Now - Integer.parseInt(tokenTimeOut.getValue()) * 1000 ) 
+          || i_Token.getTimestamp() < v_Now - 1000 * 60 * 3 ) 
         {
             return v_RetResp.setCode("-3").setMessage("时间戳无效或已过期");
         }
