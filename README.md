@@ -14,7 +14,7 @@
 接口流程
 ------
   
-![image](./hy.microservice.xsso/doc/02.接口流程.png)
+![image](https://github.com/HY-ZhengWei/hy.microservice.xsso/raw/master/hy.microservice.xsso/doc/02.接口流程.png)
 
 
 
