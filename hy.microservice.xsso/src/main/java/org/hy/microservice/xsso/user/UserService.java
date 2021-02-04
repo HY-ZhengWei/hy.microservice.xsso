@@ -3,8 +3,6 @@ package org.hy.microservice.xsso.user;
 import org.hy.common.ExpireMap;
 import org.hy.common.app.Param;
 import org.hy.common.xml.annotation.Xjava;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 
 
@@ -70,6 +68,22 @@ public class UserService
     public void setUser(String i_Token ,UserSSO i_User)
     {
         $TokenIDToUser.put(i_Token ,i_User ,Integer.parseInt(tokenTimeOut.getValue()));
+    }
+    
+    
+    
+    /**
+     * 删除用户登录信息。注销登录
+     * 
+     * @author      ZhengWei(HY)
+     * @createDate  2021-02-04
+     * @version     v1.0
+     *
+     * @param i_Token
+     */
+    public void removeUser(String i_Token)
+    {
+        $TokenIDToUser.remove(i_Token);
     }
     
 }

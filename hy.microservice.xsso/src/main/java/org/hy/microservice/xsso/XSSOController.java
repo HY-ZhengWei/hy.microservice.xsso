@@ -279,7 +279,7 @@ public class XSSOController
      */
     @RequestMapping(value="getLoginUser" ,method={RequestMethod.GET})
     @ResponseBody
-    public BaseResponse<UserSSO> etLoginUser(@RequestParam("token") String i_Token)
+    public BaseResponse<UserSSO> getLoginUser(@RequestParam("token") String i_Token)
     {
         BaseResponse<UserSSO> v_RetResp = new BaseResponse<UserSSO>();
         
@@ -301,6 +301,48 @@ public class XSSOController
         }
         
         return v_RetResp.setData(v_User);
+    }
+    
+    
+    
+    /**
+     * 注销用户登录信息
+     * 
+     * @author      ZhengWei(HY)
+     * @createDate  2021-02-04
+     * @version     v1.0
+     *
+     * @param i_Token  票据号
+     * @return
+     */
+    @RequestMapping(value="logoutUser" ,method={RequestMethod.GET})
+    @ResponseBody
+    public BaseResponse<UserSSO> logoutUser(@RequestParam("token") String i_Token)
+    {
+        BaseResponse<UserSSO> v_RetResp = new BaseResponse<UserSSO>();
+        
+        if ( Help.isNull(i_Token) )
+        {
+            return v_RetResp.setCode("-1").setMessage("票据无效或已过期");
+        }
+        
+        String v_AppKey = $TokenIDToAppKeys.get(i_Token);
+        if ( Help.isNull(v_AppKey) )
+        {
+            return v_RetResp.setCode("-1").setMessage("票据无效或已过期");
+        }
+        
+        UserSSO v_User = this.userService.getUser(i_Token);
+        if ( v_User == null )
+        {
+            return v_RetResp.setCode("-2").setMessage("用户已注销，请勿重复注销");
+        }
+        
+        $TokenIDToAppKeys.remove(i_Token);
+        $AppKeyToTokenIDs.remove(v_AppKey);
+        this.userService.removeUser(i_Token);
+        
+        return v_RetResp;
     }
     
 }
