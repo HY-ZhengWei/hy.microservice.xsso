@@ -1,4 +1,4 @@
-# hy.microservice.xsso 集成认证
+# hy.microservice.xsso 集成认证中心
 
 
 
@@ -25,4 +25,4 @@
 接口文档
 ------
   
-[下载](./hy.microservice.xsso/doc/HY.接口说明-集成认证.docx)
+[下载](./hy.microservice.xsso/doc/OpenApi.接口说明-集成认证.docx)
