@@ -5,7 +5,7 @@
 应用场景
 ------
   
-![image](hy.microservice.xsso/doc/01.应用场景.png)
+![image](./hy.microservice.xsso/doc/01.应用场景.png)
 
 
 
@@ -14,7 +14,7 @@
 接口流程
 ------
   
-![image](hy.microservice.xsso/doc/02.接口流程.png)
+![image](./hy.microservice.xsso/doc/02.接口流程.png)
 
 
 
