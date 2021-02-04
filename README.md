@@ -23,4 +23,4 @@
 接口文档
 ------
   
-[v1.6.1 for linux](hy.microservice.xsso/doc/HY.接口说明-集成认证.docx)
+[下载](https://github.com/HY-ZhengWei/hy.microservice.xsso/blob/master/hy.microservice.xsso/doc/HY.%E6%8E%A5%E5%8F%A3%E8%AF%B4%E6%98%8E-%E9%9B%86%E6%88%90%E8%AE%A4%E8%AF%81.docx)
