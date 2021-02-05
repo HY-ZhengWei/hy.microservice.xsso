@@ -59,6 +59,9 @@ public class UserSSO extends SerializableDef
     /** 用户在第三方系统的用户级别 */
     private String userLevel;
     
+    /** 用户在第三方系统的头像地址 */
+    private String userLogoUrl;
+    
     /** 用户在第三方系统的用户来源 */
     private String userSource;
     
@@ -525,6 +528,26 @@ public class UserSSO extends SerializableDef
     public void setUnionID(String unionID)
     {
         this.unionID = unionID;
+    }
+
+    
+    /**
+     * 获取：用户在第三方系统的头像地址
+     */
+    public String getUserLogoUrl()
+    {
+        return userLogoUrl;
+    }
+
+    
+    /**
+     * 设置：用户在第三方系统的头像地址
+     * 
+     * @param userLogoUrl 
+     */
+    public void setUserLogoUrl(String userLogoUrl)
+    {
+        this.userLogoUrl = userLogoUrl;
     }
     
 }
