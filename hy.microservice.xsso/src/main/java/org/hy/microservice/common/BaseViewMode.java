@@ -4,6 +4,8 @@ import org.hy.common.Date;
 import org.hy.common.Help;
 import org.hy.common.xml.SerializableDef;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 
 
 
@@ -44,9 +46,11 @@ public class BaseViewMode extends SerializableDef
     private String  userType;
     
     /** 创建时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date    createTime;
     
     /** 修改时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date    updateTime;
     
     /** 删除标记。1删除；0未删除 */
@@ -62,6 +66,7 @@ public class BaseViewMode extends SerializableDef
     private String  auditResult;
 
     /** 审核时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date    auditTime;
     
     /** 页码。有效下标从1开始 */
