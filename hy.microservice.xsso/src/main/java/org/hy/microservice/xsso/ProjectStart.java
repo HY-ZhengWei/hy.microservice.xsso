@@ -1,5 +1,7 @@
 package org.hy.microservice.xsso;
 
+import org.hy.common.StringHelp;
+import org.hy.common.xml.XJava;
 import org.hy.common.xml.plugins.XJavaSpringAnnotationConfigServletWebServerApplicationContext;
 import org.hy.common.xml.plugins.analyse.AnalyseObjectServlet;
 import org.hy.common.xml.plugins.analyse.AnalyseServerServlet;
@@ -16,6 +18,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.alibaba.druid.spring.boot.autoconfigure.DruidDataSourceAutoConfigure;
+import com.google.common.collect.ImmutableMap;
 
 
 
@@ -128,7 +131,11 @@ public class ProjectStart extends SpringBootServletInitializer
     @Bean
     public ServletRegistrationBean<AnalyseObjectServlet> analyseObjectServlet()
     {
-        return new ServletRegistrationBean<AnalyseObjectServlet>(new AnalyseObjectServlet() ,"/analyses/analyseObject");
+        ServletRegistrationBean<AnalyseObjectServlet> v_SRB = new ServletRegistrationBean<AnalyseObjectServlet>(new AnalyseObjectServlet() ,"/analyses/analyseObject");
+        
+        v_SRB.setInitParameters(ImmutableMap.of("password", StringHelp.md5(XJava.getParam("MS_XSSO_Analyses_Password").getValue() ,StringHelp.$MD5_Type_Hex)));  
+        
+        return v_SRB;
     }
 
 }

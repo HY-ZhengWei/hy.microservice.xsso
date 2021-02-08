@@ -13,6 +13,13 @@
 
         <xparam id="SYSParam_MS_XSSO" key="name">
             
+            <item id="MS_XSSO_Analyses_Password">
+                <name>MS_XSSO_Analyses_Password</name>
+                <value encrypt="org.hy.common.StringHelp">msxsso</value>
+                <comment>分析中心的访问密码</comment>
+            </item>
+            
+            
             <item id="MS_XSSO_RootPackageName">
                 <name>MS_XSSO_RootPackageName</name>
                 <value>org.hy.microservice.xsso</value>
