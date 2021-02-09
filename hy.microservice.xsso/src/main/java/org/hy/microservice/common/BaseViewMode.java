@@ -46,11 +46,11 @@ public class BaseViewMode extends SerializableDef
     private String  userType;
     
     /** 创建时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss" ,timezone = "GMT+8")
     private Date    createTime;
     
     /** 修改时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss" ,timezone = "GMT+8")
     private Date    updateTime;
     
     /** 删除标记。1删除；0未删除 */
@@ -66,7 +66,7 @@ public class BaseViewMode extends SerializableDef
     private String  auditResult;
 
     /** 审核时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss" ,timezone = "GMT+8")
     private Date    auditTime;
     
     /** 页码。有效下标从1开始 */
@@ -314,6 +314,7 @@ public class BaseViewMode extends SerializableDef
      * 
      * @param createTime 
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss" ,timezone = "GMT+8")
     public void setCreateTime(Date createTime)
     {
         this.createTime = createTime;
@@ -358,6 +359,7 @@ public class BaseViewMode extends SerializableDef
      * 
      * @param auditTime 
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss" ,timezone = "GMT+8")
     public void setAuditTime(Date auditTime)
     {
         this.auditTime = auditTime;
@@ -469,6 +471,7 @@ public class BaseViewMode extends SerializableDef
      * 
      * @param updateTime 
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss" ,timezone = "GMT+8")
     public void setUpdateTime(Date updateTime)
     {
         this.updateTime = updateTime;
