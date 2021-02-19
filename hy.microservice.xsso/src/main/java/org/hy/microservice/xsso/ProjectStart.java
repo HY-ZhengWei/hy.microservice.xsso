@@ -8,6 +8,7 @@ import org.hy.common.xml.plugins.analyse.AnalyseServerServlet;
 import org.hy.common.xml.plugins.analyse.AnalysesServlet;
 import org.hy.microservice.common.VueServlet;
 import org.hy.microservice.xsso.config.XJavaSpringInitialzer;
+import org.springframework.boot.ApplicationContextFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -30,6 +31,7 @@ import com.google.common.collect.ImmutableMap;
  * @author      ZhengWei(HY)、马龙
  * @createDate  2020-11-19
  * @version     v1.0
+ *              v2.0  2021-02-19  添加：支持SpringBoot 2.4.0版本
  */
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class, DruidDataSourceAutoConfigure.class})
 public class ProjectStart extends SpringBootServletInitializer
@@ -40,7 +42,7 @@ public class ProjectStart extends SpringBootServletInitializer
     {
         SpringApplication v_SpringApp = new SpringApplication(ProjectStart.class);
         v_SpringApp.addInitializers(new XJavaSpringInitialzer());
-        v_SpringApp.setApplicationContextClass(XJavaSpringAnnotationConfigServletWebServerApplicationContext.class);
+        v_SpringApp.setApplicationContextFactory(ApplicationContextFactory.ofContextClass(XJavaSpringAnnotationConfigServletWebServerApplicationContext.class));
         ConfigurableApplicationContext v_CAC = v_SpringApp.run(args);
     }
     
@@ -61,7 +63,7 @@ public class ProjectStart extends SpringBootServletInitializer
     protected WebApplicationContext run(SpringApplication i_Application) 
     {
         i_Application.addInitializers(new XJavaSpringInitialzer());
-        i_Application.setApplicationContextClass(XJavaSpringAnnotationConfigServletWebServerApplicationContext.class);
+        i_Application.setApplicationContextFactory(ApplicationContextFactory.ofContextClass(XJavaSpringAnnotationConfigServletWebServerApplicationContext.class));
         
         return (WebApplicationContext) i_Application.run();
     }
