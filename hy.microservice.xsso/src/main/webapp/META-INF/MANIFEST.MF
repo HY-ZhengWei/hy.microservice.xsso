@@ -1,5 +1,5 @@
-Manifest-Version: 1.0.01
+Manifest-Version: 1.0.1
 Created-By: HY.ZhengWei@qq.com  2021
-Specification-Version: 1.0.1  2021-02-19
+Specification-Version: 1.0.1  2021-03-01
 SourceCode: https://github.com/HY-ZhengWei/hy.microservice.xsso
 Build-JDK: 1.8

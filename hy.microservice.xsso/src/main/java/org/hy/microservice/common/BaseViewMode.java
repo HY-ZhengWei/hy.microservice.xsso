@@ -45,6 +45,10 @@ public class BaseViewMode extends SerializableDef
     /** 用户类型 */
     private String  userType;
     
+    /** 过期时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss" ,timezone = "GMT+8")
+    private Date    expireTime;
+    
     /** 创建时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss" ,timezone = "GMT+8")
     private Date    createTime;
@@ -58,6 +62,9 @@ public class BaseViewMode extends SerializableDef
     
     /** 是否显示。1显示；0不显示 */
     private Integer isShow;
+    
+    /** 排列显示顺序。数据越大越在前显示 */
+    private Integer orderBy;
     
     /** 审核状态：0：待审核、1：已审核 */
     private String  auditState;
@@ -526,6 +533,47 @@ public class BaseViewMode extends SerializableDef
     public void setPageIndex(Long pageIndex)
     {
         this.pageIndex = pageIndex;
+    }
+
+    
+    /**
+     * 获取：排列显示顺序。数据越大越在前显示
+     */
+    public Integer getOrderBy()
+    {
+        return orderBy;
+    }
+
+
+    /**
+     * 设置：排列显示顺序。数据越大越在前显示
+     * 
+     * @param orderBy 
+     */
+    public void setOrderBy(Integer orderBy)
+    {
+        this.orderBy = orderBy;
+    }
+
+    
+    /**
+     * 获取：过期时间
+     */
+    public Date getExpireTime()
+    {
+        return expireTime;
+    }
+
+
+    /**
+     * 设置：过期时间
+     * 
+     * @param expireTime 
+     */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss" ,timezone = "GMT+8")
+    public void setExpireTime(Date expireTime)
+    {
+        this.expireTime = expireTime;
     }
 
 }
