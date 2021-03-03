@@ -47,25 +47,25 @@ public class XSSOController
      * 生成的访问TokenID 
      * 
      * map.key    为AppKey
-     * map.value  为TokenID
+     * map.value  为AccessTokenID
      */
-    private static ExpireMap<String ,String>  $AppKeyToTokenIDs = new ExpireMap<String ,String>();
+    private static ExpireMap<String ,String>  $AppKeyToAccessTokenIDs = new ExpireMap<String ,String>();
     
     /** 
      * 生成的访问TokenID 
      * 
-     * map.key    为TokenID
+     * map.key    为AccessTokenID
      * map.value  为AppKey
      */
-    private static ExpireMap<String ,String>  $TokenIDToAppKeys = new ExpireMap<String ,String>();
+    private static ExpireMap<String ,String>  $AccessTokenIDToAppKeys = new ExpireMap<String ,String>();
     
     /** 
      * 生成的临时登录Code。这里保存的Code只有使用一次。使用后立即释放，防止第二次非法访问。
      * 
      * map.key    为临时登录Code
-     * map.value  为Token
+     * map.value  为AppKey
      */
-    private static ExpireMap<String ,String>  $CodeToAppKeys   = new ExpireMap<String ,String>();
+    private static ExpireMap<String ,String>  $CodeToAppKeys          = new ExpireMap<String ,String>();
     
     
     
@@ -132,7 +132,7 @@ public class XSSOController
      * @createDate  2021-02-01
      * @version     v1.0
      *
-     * @param i_PostInfo
+     * @param i_Token  访问级的票据号
      * @return
      */
     @RequestMapping(value="getAccessToken" ,method={RequestMethod.GET})
@@ -177,23 +177,23 @@ public class XSSOController
             
             v_RetResp.setData(new TokenInfo());
             
-            if ( $AppKeyToTokenIDs.containsKey(v_AppKey.getAppKey()) )
+            if ( $AppKeyToAccessTokenIDs.containsKey(v_AppKey.getAppKey()) )
             {
-                v_RetResp.getData().getData().setAccessToken($AppKeyToTokenIDs.get(v_AppKey.getAppKey()));
-                v_RetResp.getData().getData().setExpire((int)($AppKeyToTokenIDs.getExpireTimeLen(v_AppKey.getAppKey()) / 1000));
+                v_RetResp.getData().getData().setAccessToken( $AppKeyToAccessTokenIDs.get(v_AppKey.getAppKey()));
+                v_RetResp.getData().getData().setExpire((int)($AppKeyToAccessTokenIDs.getExpireTimeLen(v_AppKey.getAppKey()) / 1000));
             }
             else
             {
                 v_RetResp.getData().getData().setAccessToken(StringHelp.getUUID());
                 v_RetResp.getData().getData().setExpire(7200);
                 
-                $AppKeyToTokenIDs.put(v_AppKey.getAppKey() ,v_RetResp.getData().getData().getAccessToken() ,Integer.parseInt(tokenTimeOut.getValue()));
-                $TokenIDToAppKeys.put(v_RetResp.getData().getData().getAccessToken() ,v_AppKey.getAppKey() ,Integer.parseInt(tokenTimeOut.getValue()));
+                $AppKeyToAccessTokenIDs.put(v_AppKey.getAppKey() ,v_RetResp.getData().getData().getAccessToken() ,Integer.parseInt(tokenTimeOut.getValue()));
+                $AccessTokenIDToAppKeys.put(v_RetResp.getData().getData().getAccessToken() ,v_AppKey.getAppKey() ,Integer.parseInt(tokenTimeOut.getValue()));
             }
             
             // 生成临时登录Code（有效期：5分钟）
             v_RetResp.getData().getData().setCode(StringHelp.getUUID());
-            $CodeToAppKeys.put(v_RetResp.getData().getData().getCode() ,v_RetResp.getData().getData().getAccessToken() ,Integer.parseInt(codeTimeOut.getValue()));
+            $CodeToAppKeys.put(v_RetResp.getData().getData().getCode() ,v_AppKey.getAppKey() ,Integer.parseInt(codeTimeOut.getValue()));
             
             return v_RetResp;
         }
@@ -203,6 +203,43 @@ public class XSSOController
         }
         
         return v_RetResp.setCode("-999").setMessage("异常");
+    }
+    
+    
+    
+    /**
+     * 获取应用编码AppKey及过期时间
+     * 
+     * @author      ZhengWei(HY)
+     * @createDate  2021-03-03
+     * @version     v1.0
+     *
+     * @param i_AccessToken  访问级的票据号
+     * @return
+     */
+    @RequestMapping(value="getAppKey" ,method={RequestMethod.GET})
+    @ResponseBody
+    public BaseResponse<TokenInfo> getAppKey(@RequestParam("token") String i_AccessToken)
+    {
+        BaseResponse<TokenInfo> v_RetResp = new BaseResponse<TokenInfo>();
+        
+        if ( Help.isNull(i_AccessToken) )
+        {
+            return v_RetResp.setCode("-1").setMessage("票据无效或已过期");
+        }
+        
+        String v_AppKey        = $AccessTokenIDToAppKeys.get(i_AccessToken);
+        long   v_ExpireTimeLen = $AccessTokenIDToAppKeys.getExpireTimeLen(i_AccessToken);
+        if ( v_AppKey == null || v_ExpireTimeLen <= 0 )
+        {
+            return v_RetResp.setCode("-1").setMessage("票据无效或已过期");
+        }
+        
+        v_RetResp.setData(new TokenInfo());
+        v_RetResp.getData().getData().setAppKey(v_AppKey);
+        v_RetResp.getData().getData().setExpire((int)(v_ExpireTimeLen / 1000));
+        
+        return v_RetResp;
     }
     
     
@@ -229,13 +266,7 @@ public class XSSOController
             return v_RetResp.setCode("-1").setMessage("临时登录Code无效或已过期");
         }
         
-        String v_Token = $CodeToAppKeys.remove(i_Code);
-        if ( Help.isNull(v_Token) )
-        {
-            return v_RetResp.setCode("-1").setMessage("临时登录Code无效或已过期");
-        }
-        
-        String v_AppKey = $TokenIDToAppKeys.get(v_Token);
+        String v_AppKey = $CodeToAppKeys.remove(i_Code);
         if ( Help.isNull(v_AppKey) )
         {
             return v_RetResp.setCode("-1").setMessage("临时登录Code无效或已过期");
@@ -256,11 +287,13 @@ public class XSSOController
             return v_RetResp.setCode("-103").setMessage("用户ID为空"); 
         }
         
-        userService.setUser(v_Token ,i_UserSSO);
+        String v_SessionToken = StringHelp.getUUID();
+        i_UserSSO.setAppKey(v_AppKey);
+        userService.setUser(v_SessionToken ,i_UserSSO);
         
-        long v_Expire = $TokenIDToAppKeys.getExpireTimeLen(v_Token) / 1000;
         v_RetResp.setData(new TokenInfo());
-        v_RetResp.getData().getData().setExpire((int)v_Expire);
+        v_RetResp.getData().getData().setSessionToken(v_SessionToken);
+        v_RetResp.getData().getData().setExpire((int)userService.getExpireTimeLen());
         
         return v_RetResp;
     }
@@ -274,27 +307,21 @@ public class XSSOController
      * @createDate  2021-02-03
      * @version     v1.0
      *
-     * @param i_Token  票据号
+     * @param i_SessionToken  会话级的票据号
      * @return
      */
     @RequestMapping(value="getLoginUser" ,method={RequestMethod.GET})
     @ResponseBody
-    public BaseResponse<UserSSO> getLoginUser(@RequestParam("token") String i_Token)
+    public BaseResponse<UserSSO> getLoginUser(@RequestParam("token") String i_SessionToken)
     {
         BaseResponse<UserSSO> v_RetResp = new BaseResponse<UserSSO>();
         
-        if ( Help.isNull(i_Token) )
+        if ( Help.isNull(i_SessionToken) )
         {
             return v_RetResp.setCode("-1").setMessage("票据无效或已过期");
         }
         
-        String v_AppKey = $TokenIDToAppKeys.get(i_Token);
-        if ( Help.isNull(v_AppKey) )
-        {
-            return v_RetResp.setCode("-1").setMessage("票据无效或已过期");
-        }
-        
-        UserSSO v_User = this.userService.getUser(i_Token);
+        UserSSO v_User = this.userService.getUser(i_SessionToken);
         if ( v_User == null )
         {
             return v_RetResp.setCode("-1").setMessage("票据无效或已过期");
@@ -312,35 +339,27 @@ public class XSSOController
      * @createDate  2021-02-04
      * @version     v1.0
      *
-     * @param i_Token  票据号
+     * @param i_SessionToken  会话级的票据号
      * @return
      */
     @RequestMapping(value="logoutUser" ,method={RequestMethod.GET})
     @ResponseBody
-    public BaseResponse<UserSSO> logoutUser(@RequestParam("token") String i_Token)
+    public BaseResponse<UserSSO> logoutUser(@RequestParam("token") String i_SessionToken)
     {
         BaseResponse<UserSSO> v_RetResp = new BaseResponse<UserSSO>();
         
-        if ( Help.isNull(i_Token) )
+        if ( Help.isNull(i_SessionToken) )
         {
             return v_RetResp.setCode("-1").setMessage("票据无效或已过期");
         }
         
-        String v_AppKey = $TokenIDToAppKeys.get(i_Token);
-        if ( Help.isNull(v_AppKey) )
-        {
-            return v_RetResp.setCode("-1").setMessage("票据无效或已过期");
-        }
-        
-        UserSSO v_User = this.userService.getUser(i_Token);
+        UserSSO v_User = this.userService.getUser(i_SessionToken);
         if ( v_User == null )
         {
             return v_RetResp.setCode("-2").setMessage("用户已注销，请勿重复注销");
         }
         
-        $TokenIDToAppKeys.remove(i_Token);
-        $AppKeyToTokenIDs.remove(v_AppKey);
-        this.userService.removeUser(i_Token);
+        this.userService.removeUser(i_SessionToken);
         
         return v_RetResp;
     }

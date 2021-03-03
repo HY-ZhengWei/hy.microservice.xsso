@@ -30,6 +30,9 @@ public class TokenInfo extends BaseViewMode
     /** 访问Token */
     private String  accessToken;
     
+    /** 会话Token */
+    private String  sessionToken;
+    
     /** 过期时长（单位：秒） */
     private Integer expire;
     
@@ -155,6 +158,26 @@ public class TokenInfo extends BaseViewMode
     public void setCode(String code)
     {
         this.code = code;
+    }
+
+    
+    /**
+     * 获取：会话Token
+     */
+    public String getSessionToken()
+    {
+        return sessionToken;
+    }
+
+    
+    /**
+     * 设置：会话Token
+     * 
+     * @param sessionToken 
+     */
+    public void setSessionToken(String sessionToken)
+    {
+        this.sessionToken = sessionToken;
     }
 
 }

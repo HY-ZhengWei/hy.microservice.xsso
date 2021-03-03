@@ -24,10 +24,10 @@ public class UserService
      * 
      * 为了后期从Redis中取用户，禁止直接访问此类。
      * 
-     * Map.key    为TokenID
+     * Map.key    为SessionTokenID
      * Map.value  为用户信息
      */
-    private static ExpireMap<String ,UserSSO> $TokenIDToUser = new ExpireMap<String ,UserSSO>();
+    private static ExpireMap<String ,UserSSO> $SessionTokenIDToUser = new ExpireMap<String ,UserSSO>();
     
     
     /**
@@ -45,12 +45,45 @@ public class UserService
      * @createDate  2021-02-02
      * @version     v1.0
      *
-     * @param i_Token
+     * @param i_SessionToken
      * @return
      */
-    public UserSSO getUser(String i_Token)
+    public UserSSO getUser(String i_SessionToken)
     {
-        return $TokenIDToUser.get(i_Token);
+        return $SessionTokenIDToUser.get(i_SessionToken);
+    }
+    
+    
+    
+    /**
+     * 获取剩余有效时间的时长（单位：秒）。
+     * 
+     * @author      ZhengWei(HY)
+     * @createDate  2021-03-03
+     * @version     v1.0
+     *
+     * @param i_SessionToken
+     * @return
+     */
+    public long getExpireTimeLen(String i_SessionToken)
+    {
+        return $SessionTokenIDToUser.getExpireTimeLen(i_SessionToken) / 1000;
+    }
+    
+    
+    
+    /**
+     * 票据有效时长（单位：秒）
+     * 
+     * @author      ZhengWei(HY)
+     * @createDate  2021-03-03
+     * @version     v1.0
+     *
+     * @return
+     */
+    public long getExpireTimeLen()
+    {
+        return Long.parseLong(tokenTimeOut.getValue());
     }
     
     
@@ -62,12 +95,12 @@ public class UserService
      * @createDate  2021-02-02
      * @version     v1.0
      *
-     * @param i_Token
+     * @param i_SessionToken
      * @param i_User
      */
-    public void setUser(String i_Token ,UserSSO i_User)
+    public void setUser(String i_SessionToken ,UserSSO i_User)
     {
-        $TokenIDToUser.put(i_Token ,i_User ,Integer.parseInt(tokenTimeOut.getValue()));
+        $SessionTokenIDToUser.put(i_SessionToken ,i_User ,Integer.parseInt(tokenTimeOut.getValue()));
     }
     
     
@@ -79,11 +112,11 @@ public class UserService
      * @createDate  2021-02-04
      * @version     v1.0
      *
-     * @param i_Token
+     * @param i_SessionToken
      */
-    public void removeUser(String i_Token)
+    public void removeUser(String i_SessionToken)
     {
-        $TokenIDToUser.remove(i_Token);
+        $SessionTokenIDToUser.remove(i_SessionToken);
     }
     
 }
