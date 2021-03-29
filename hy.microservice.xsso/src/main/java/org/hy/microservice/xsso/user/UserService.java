@@ -3,6 +3,7 @@ package org.hy.microservice.xsso.user;
 import org.hy.common.ExpireMap;
 import org.hy.common.app.Param;
 import org.hy.common.xml.annotation.Xjava;
+import org.hy.common.xml.log.Logger;
 
 
 
@@ -18,7 +19,6 @@ import org.hy.common.xml.annotation.Xjava;
 @Xjava
 public class UserService
 {
-    
     /**
      * 已登录成功的用户数据。
      * 

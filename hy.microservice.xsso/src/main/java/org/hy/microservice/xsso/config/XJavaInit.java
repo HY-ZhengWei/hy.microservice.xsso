@@ -5,6 +5,7 @@ import java.util.*;
 import org.hy.common.Help;
 import org.hy.common.app.Param;
 import org.hy.common.xml.XJava;
+import org.hy.common.xml.log.Logger;
 import org.hy.common.xml.plugins.AppInitConfig;
 
 
@@ -20,6 +21,7 @@ import org.hy.common.xml.plugins.AppInitConfig;
  */
 public class XJavaInit extends AppInitConfig
 {
+    private static Logger  $Logger = Logger.getLogger(XJavaInit.class);
     
     private static boolean $Init = false;  
     
@@ -65,8 +67,7 @@ public class XJavaInit extends AppInitConfig
             }
             catch (Exception exce)
             {
-                System.out.println(exce.getMessage());
-                exce.printStackTrace();
+                $Logger.error(exce);
             }
         }
     }
