@@ -7,15 +7,15 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.hy.common.Date;
-import org.hy.common.ExpireMap;
 import org.hy.common.Help;
 import org.hy.common.StringHelp;
-import org.hy.common.app.Param;
 import org.hy.common.license.AppKey;
 import org.hy.common.license.KeyStore;
 import org.hy.common.license.SignProvider;
 import org.hy.common.xml.log.Logger;
 import org.hy.microservice.common.BaseResponse;
+import org.hy.microservice.xsso.accessToken.AccessTokenService;
+import org.hy.microservice.xsso.accessToken.CodeService;
 import org.hy.microservice.xsso.accessToken.TokenInfo;
 import org.hy.microservice.xsso.user.UserSSO;
 import org.hy.microservice.xsso.user.UserService;
@@ -47,37 +47,6 @@ public class XSSOController
     
     private static final Logger $Logger = new Logger(XSSOController.class);
     
-    /** 登陆的Session会话ID标识，标识着是否登陆成功 */
-    public  static final String $SessionID = "$XSSO$";
-    
-    
-    
-    /**
-     * 生成的访问TokenID
-     * 
-     * map.key    为AppKey
-     * map.value  为AccessTokenID
-     */
-    private static ExpireMap<String ,String>  $AppKeyToAccessTokenIDs = new ExpireMap<String ,String>();
-    
-    /**
-     * 生成的访问TokenID
-     * 
-     * map.key    为AccessTokenID
-     * map.value  为AppKey
-     */
-    private static ExpireMap<String ,String>  $AccessTokenIDToAppKeys = new ExpireMap<String ,String>();
-    
-    /**
-     * 生成的临时登录Code。这里保存的Code只有使用一次。使用后立即释放，防止第二次非法访问。
-     * 
-     * map.key    为临时登录Code
-     * map.value  为AppKey
-     */
-    private static ExpireMap<String ,String>  $CodeToAppKeys          = new ExpireMap<String ,String>();
-    
-    
-    
     /**
      * 所有配置有效的应用AppKey数据
      */
@@ -85,23 +54,17 @@ public class XSSOController
     @Qualifier("AppKeys")
     private Map<String ,AppKey> appKeys;
     
-    /**
-     * 票据的有效时长（单位：秒）
-     */
     @Autowired
-    @Qualifier("MS_XSSO_TokenTimeOut")
-    private Param tokenTimeOut;
+    @Qualifier("AccessTokenService")
+    private AccessTokenService  accessTokenService;
     
-    /**
-     * 票据有效时长（单位：秒）
-     */
     @Autowired
-    @Qualifier("MS_XSSO_CodeTimeOut")
-    private Param codeTimeOut;
+    @Qualifier("CodeService")
+    private CodeService         codeService;
     
     @Autowired
     @Qualifier("UserService")
-    private UserService userService;
+    private UserService         userService;
     
     
     
@@ -186,24 +149,19 @@ public class XSSOController
             
             v_RetResp.setData(new TokenInfo());
             
-            if ( $AppKeyToAccessTokenIDs.containsKey(v_AppKey.getAppKey()) )
+            if ( accessTokenService.existsAppKey(v_AppKey.getAppKey()) )
             {
-                v_RetResp.getData().getData().setAccessToken( $AppKeyToAccessTokenIDs.get(v_AppKey.getAppKey()));
-                v_RetResp.getData().getData().setExpire((int)($AppKeyToAccessTokenIDs.getExpireTimeLen(v_AppKey.getAppKey()) / 1000));
+                v_RetResp.getData().getData().setAccessToken( this.accessTokenService.getTokenID(           v_AppKey.getAppKey()));
+                v_RetResp.getData().getData().setExpire((int)(this.accessTokenService.getTokenExpireTimeLen(v_AppKey.getAppKey()) / 1000));
             }
             else
             {
-                v_RetResp.getData().getData().setAccessToken(StringHelp.getUUID());
+                v_RetResp.getData().getData().setAccessToken(this.accessTokenService.makeToken(v_AppKey.getAppKey()));
                 v_RetResp.getData().getData().setExpire(7200);
-                
-                $AppKeyToAccessTokenIDs.put(v_AppKey.getAppKey() ,v_RetResp.getData().getData().getAccessToken() ,Integer.parseInt(tokenTimeOut.getValue()));
-                $AccessTokenIDToAppKeys.put(v_RetResp.getData().getData().getAccessToken() ,v_AppKey.getAppKey() ,Integer.parseInt(tokenTimeOut.getValue()));
             }
             
             // 生成临时登录Code（有效期：5分钟）
-            v_RetResp.getData().getData().setCode(StringHelp.getUUID());
-            $CodeToAppKeys.put(v_RetResp.getData().getData().getCode() ,v_AppKey.getAppKey() ,Integer.parseInt(codeTimeOut.getValue()));
-            
+            v_RetResp.getData().getData().setCode(codeService.makeCode(v_AppKey.getAppKey()));
             return v_RetResp;
         }
         catch (Exception exce)
@@ -237,8 +195,8 @@ public class XSSOController
             return v_RetResp.setCode("-1").setMessage("票据无效或已过期");
         }
         
-        String v_AppKey        = $AccessTokenIDToAppKeys.get(i_AccessToken);
-        long   v_ExpireTimeLen = $AccessTokenIDToAppKeys.getExpireTimeLen(i_AccessToken);
+        String v_AppKey        = this.accessTokenService.getAppKey(             i_AccessToken);
+        long   v_ExpireTimeLen = this.accessTokenService.getAppKeyExpireTimeLen(i_AccessToken);
         if ( v_AppKey == null || v_ExpireTimeLen <= 0 )
         {
             return v_RetResp.setCode("-1").setMessage("票据无效或已过期");
@@ -275,7 +233,7 @@ public class XSSOController
             return v_RetResp.setCode("-1").setMessage("临时登录Code无效或已过期");
         }
         
-        String v_AppKey = $CodeToAppKeys.remove(i_Code);
+        String v_AppKey = this.codeService.getAppKey(i_Code);
         if ( Help.isNull(v_AppKey) )
         {
             return v_RetResp.setCode("-1").setMessage("临时登录Code无效或已过期");
@@ -296,13 +254,9 @@ public class XSSOController
             return v_RetResp.setCode("-103").setMessage("用户ID为空");
         }
         
-        String v_SessionToken = i_Request.getSession().getId();
-        i_UserSSO.setAppKey(v_AppKey);
-        userService.setUser(v_SessionToken ,i_UserSSO);
-        
         v_RetResp.setData(new TokenInfo());
-        v_RetResp.getData().getData().setSessionToken(v_SessionToken);
-        v_RetResp.getData().getData().setExpire((int)userService.getExpireTimeLen());
+        v_RetResp.getData().getData().setSessionToken(this.userService.usidMake(i_UserSSO));
+        v_RetResp.getData().getData().setExpire((int)userService.getMaxExpireTimeLen());
         
         return v_RetResp;
     }
@@ -317,42 +271,42 @@ public class XSSOController
      * @createDate  2022-05-10
      * @version     v1.0
      * 
-     * @param i_USID          会话级票据，与i_SessionToken同义，传送两参数任何一个即可，仅为支持老接口而并存
-     * @param i_SessionToken  会话级票据，与i_USID        同义，传送两参数任何一个即可，仅为支持老接口而并存
+     * @param i_USID       会话级票据，与i_SessionToken同义，传送两参数任何一个即可，仅为支持老接口而并存
+     * @param i_USIDToken  会话级票据，与i_USID        同义，传送两参数任何一个即可，仅为支持老接口而并存
      *
      * @return
      */
     @RequestMapping(value="binding" ,method={RequestMethod.GET})
     @ResponseBody
     public BaseResponse<String> binding(@RequestParam(name="USID"  ,required=false) String i_USID
-                                       ,@RequestParam(name="token" ,required=false) String i_SessionToken
+                                       ,@RequestParam(name="token" ,required=false) String i_USIDToken
                                        ,HttpServletRequest                                 i_Request
                                        ,HttpServletResponse                                i_Response)
     {
         HttpSession          v_Session     = i_Request.getSession();
-        UserSSO              v_SessionData = (UserSSO)v_Session.getAttribute($SessionID);
-        String               v_USID        = Help.NVL(i_USID ,i_SessionToken);
+        UserSSO              v_SessionUser = this.userService.sessionGetUser(v_Session);
+        String               v_USID        = Help.NVL(i_USID ,i_USIDToken);
         BaseResponse<String> v_RetResp     = new BaseResponse<String>();
         
         try
         {
             if ( !Help.isNull(v_USID) )
             {
-                UserSSO v_User = this.userService.getUser(v_USID);
-                if ( v_User != null )
+                UserSSO v_USIDUser = this.userService.usidGetUser(v_USID);
+                if ( v_USIDUser != null )
                 {
-                    if ( v_SessionData != null )
+                    if ( v_SessionUser != null )
                     {
                         // TODO 此处应通知所有单点服务器，退出之前的老会话
                     }
 
-                    v_User.setUsid(v_USID);
-
-                    v_Session.setMaxInactiveInterval(Integer.parseInt(tokenTimeOut.getValue()));
-                    v_Session.setAttribute($SessionID ,v_User);
-
-                    // TODO 此处应通知所有单点服务器，建立全局会话
-
+                    v_USIDUser.setUsid(v_USID);
+                    v_USIDUser.setSessionID(this.userService.sessionGetID(v_Session));
+                    this.userService.sessionAlive(v_Session              ,v_USIDUser);
+                    this.userService.usidAlive(v_USID                    ,v_USIDUser);
+                    this.userService.usidAlive(v_USIDUser.getSessionID() ,v_USIDUser);  // 再用SessionID多保活（或冗余一份用户数据）
+                                                                                        // 原因是：方便getUSID()跨域访问时，有能力用SessionID得出USID
+                    
                     $Logger.info("{} 票据有效，用户登录并绑定三方关系成功，建立本地会话。" ,v_USID);
                 }
                 else
@@ -363,7 +317,7 @@ public class XSSOController
             }
             else
             {
-                $Logger.info("全局会话票据为空。会话信息-" + (v_SessionData != null ? "存在" : "没有"));
+                $Logger.info("全局会话票据为空。会话信息-" + (v_SessionUser != null ? "存在" : "没有"));
                 v_RetResp.setCode("-1").setMessage("");
             }
         }
@@ -385,54 +339,69 @@ public class XSSOController
      * @createDate  2022-05-10
      * @version     v1.0
      * 
-     * @param i_USID          会话级票据，与i_SessionToken同义，传送两参数任何一个即可，仅为支持老接口而并存
-     * @param i_SessionToken  会话级票据，与i_USID        同义，传送两参数任何一个即可，仅为支持老接口而并存
+     * @param i_USID       会话级票据，与i_SessionToken同义，传送两参数任何一个即可，仅为支持老接口而并存
+     * @param i_USIDToken  会话级票据，与i_USID        同义，传送两参数任何一个即可，仅为支持老接口而并存
      *
      * @return
      */
     @RequestMapping(value="alive" ,method={RequestMethod.GET})
     @ResponseBody
     public BaseResponse<String> alive(@RequestParam(name="USID"  ,required=false) String i_USID
-                                     ,@RequestParam(name="token" ,required=false) String i_SessionToken
+                                     ,@RequestParam(name="token" ,required=false) String i_USIDToken
                                      ,HttpServletRequest                                 i_Request
                                      ,HttpServletResponse                                i_Response)
     {
         HttpSession          v_Session     = i_Request.getSession();
-        UserSSO              v_SessionData = (UserSSO)v_Session.getAttribute($SessionID);
-        String               v_USID        = Help.NVL(i_USID ,i_SessionToken);
+        UserSSO              v_SessionUser = null;
+        UserSSO              v_USIDUser    = null;
+        String               v_USID        = Help.NVL(i_USID ,i_USIDToken);
         BaseResponse<String> v_RetResp     = new BaseResponse<String>();
         int                  v_IsAlive     = 0;
         
         try
         {
-            if ( !Help.isNull(v_USID) )
+            // 为预防非法使用全局会话USID，篡改保活数据。所以，
+            //   1. 全局会话的用全局会话中的用户数据保活;
+            //   2. 本地会话的用本地会话中的用户数据保活;
+            //   3. 禁止混淆保活;
+            // 如出现当全局会话的USID与本地会话的USID不一致时
+            
+            // 全局会话保活
+            if ( !Help.isNull(v_USID) )    // 隐含：允许两个USID均不传值的情况
             {
-                UserSSO v_User = this.userService.getUser(v_USID);
-                if ( v_User != null )
+                v_USIDUser = this.userService.usidGetUser(v_USID);
+                if ( v_USIDUser != null )
                 {
-                    this.userService.setUser(v_USID ,v_User);
-                    v_IsAlive++;
+                    if ( v_IsAlive == 0 )
+                    {
+                        // 设置UserSSO.setSessionID(...)，在多种终端设备的情况下，可能出现与上次的值不一样
+                        v_USIDUser.setSessionID(this.userService.sessionGetID(v_Session));
+                        this.userService.usidAlive(v_USID ,v_USIDUser);
+                        v_IsAlive++;
+                    }
                 }
             }
             
-            // 本地会话不是必须要有的哈
-            if ( v_SessionData != null )
+            // 本地会话保活：但本地会话也可能是不存在的，所以本地会话不是必须有的哈
+            v_SessionUser = this.userService.sessionGetUser(v_Session);
+            if ( v_SessionUser != null )
             {
-                v_Session.setMaxInactiveInterval(Integer.parseInt(tokenTimeOut.getValue()));
-                v_Session.setAttribute($SessionID ,v_SessionData);
-                
+                this.userService.sessionAlive(v_Session ,v_SessionUser);
                 if ( v_IsAlive == 0 )
                 {
-                    this.userService.setUser(v_SessionData.getUsid() ,v_SessionData);
+                    this.userService.usidAlive(v_SessionUser.getUsid() ,v_SessionUser);
+                    v_IsAlive++;
                 }
-                
-                v_IsAlive++;
             }
             
             if ( v_IsAlive <= 0 )
             {
                 $Logger.info("{} 票据已失效 或 已过期 或 为非法票据（会话保活）。" ,v_USID);
                 v_RetResp.setCode("-1").setMessage("");
+            }
+            else
+            {
+                $Logger.debug("{} 会话保活。" ,v_USID);
             }
         }
         catch (Exception exce)
@@ -463,22 +432,22 @@ public class XSSOController
         i_Response.setContentType("text/javascript");
         
         HttpSession v_Session     = i_Request.getSession();
-        String      v_SessionID   = v_Session.getId();
-        UserSSO     v_SessionData = (UserSSO)v_Session.getAttribute($SessionID);
+        String      v_SessionID   = null;
+        UserSSO     v_SessionUser = this.userService.sessionGetUser(v_Session);
+        UserSSO     v_USIDUser    = null;
         
         try
         {
-            if ( v_SessionData == null || Help.isNull(v_SessionData.getUsid()) )
+            if ( v_SessionUser == null || Help.isNull(v_SessionUser.getUsid()) )
             {
-                UserSSO v_XJavaUser = this.userService.getUser(v_SessionID);
-                if ( v_XJavaUser != null )
+                v_SessionID = this.userService.sessionGetID(v_Session);
+                v_USIDUser  = this.userService.usidGetUser(v_SessionID);
+                if ( v_USIDUser != null )
                 {
                     // 创建会话
-                    v_Session.setMaxInactiveInterval(Integer.parseInt(tokenTimeOut.getValue()));
-                    v_Session.setAttribute($SessionID ,v_XJavaUser);
-                    
-                    i_Response.getWriter().println(i_SSOCallBack + "('" + v_XJavaUser.getUsid() + "');");
-                    $Logger.info("{} 全局会话有效，返回跨服务端的票据，并建立本地会话。" ,v_XJavaUser.getUsid());
+                    this.userService.sessionAlive(v_Session ,v_USIDUser);
+                    i_Response.getWriter().println(i_SSOCallBack + "('" + v_USIDUser.getUsid() + "');");
+                    $Logger.info("{} 全局会话有效，返回跨服务端的票据，并建立本地会话。" ,v_USIDUser.getUsid());
                 }
                 else
                 {
@@ -488,17 +457,16 @@ public class XSSOController
             }
             else
             {
-                UserSSO v_XJavaUser = this.userService.getUser(v_SessionData.getUsid());
-                if ( v_XJavaUser != null )
+                v_USIDUser = this.userService.usidGetUser(v_SessionUser.getUsid());
+                if ( v_USIDUser != null )
                 {
-                    i_Response.getWriter().println(i_SSOCallBack + "('" + v_SessionData.getUsid() + "');");
-                    $Logger.info("{} 全局会话有效，返回票据。" ,v_SessionData.getUsid());
+                    i_Response.getWriter().println(i_SSOCallBack + "('" + v_SessionUser.getUsid() + "');");
+                    $Logger.info("{} 全局会话有效，返回票据。" ,v_SessionUser.getUsid());
                 }
                 else
                 {
-                    v_Session.removeAttribute($SessionID);
-                    v_Session.invalidate();
-                    $Logger.info("{} 全局会话已失效。" ,v_SessionData.getUsid());
+                    this.userService.sessionRemove(v_Session);
+                    $Logger.info("{} 全局会话已失效。" ,v_SessionUser.getUsid());
                     i_Response.getWriter().println(i_SSOCallBack + "('');");
                 }
             }
@@ -520,27 +488,30 @@ public class XSSOController
      * @createDate  2021-02-03
      * @version     v1.0
      *
-     * @param i_SessionToken  会话级的票据号
+     * @param i_USID       会话级票据，与i_SessionToken同义，传送两参数任何一个即可，仅为支持老接口而并存
+     * @param i_USIDToken  会话级票据，与i_USID        同义，传送两参数任何一个即可，仅为支持老接口而并存
      * @return
      */
     @RequestMapping(value="getLoginUser" ,method={RequestMethod.GET})
     @ResponseBody
-    public BaseResponse<UserSSO> getLoginUser(@RequestParam("token") String i_SessionToken)
+    public BaseResponse<UserSSO> getLoginUser(@RequestParam(name="USID"  ,required=false) String i_USID
+                                             ,@RequestParam(name="token" ,required=false) String i_USIDToken)
     {
         BaseResponse<UserSSO> v_RetResp = new BaseResponse<UserSSO>();
+        String                v_USID        = Help.NVL(i_USID ,i_USIDToken);
         
-        if ( Help.isNull(i_SessionToken) )
+        if ( Help.isNull(v_USID) )
         {
-            return v_RetResp.setCode("-1").setMessage("票据无效或已过期");
+            return v_RetResp.setCode("-1").setMessage(v_USID + " 票据无效或已过期");
         }
         
-        UserSSO v_User = this.userService.getUser(i_SessionToken);
-        if ( v_User == null )
+        UserSSO v_USIDUser = this.userService.usidGetUser(v_USID);
+        if ( v_USIDUser == null )
         {
-            return v_RetResp.setCode("-1").setMessage("票据无效或已过期");
+            return v_RetResp.setCode("-1").setMessage(v_USID + " 票据无效或已过期");
         }
         
-        return v_RetResp.setData(v_User);
+        return v_RetResp.setData(v_USIDUser);
     }
     
     
@@ -552,18 +523,19 @@ public class XSSOController
      * @createDate  2021-02-04
      * @version     v1.0
      *
-     * @param i_SessionToken  会话级的票据号
+     * @param i_USID       会话级票据，与i_SessionToken同义，传送两参数任何一个即可，仅为支持老接口而并存
+     * @param i_USIDToken  会话级票据，与i_USID        同义，传送两参数任何一个即可，仅为支持老接口而并存
      * @return
      */
     @RequestMapping(value="logoutUser" ,method={RequestMethod.GET})
     @ResponseBody
     public BaseResponse<UserSSO> logoutUser(@RequestParam(name="USID"  ,required=false) String i_USID
-                                           ,@RequestParam(name="token" ,required=false) String i_SessionToken
+                                           ,@RequestParam(name="token" ,required=false) String i_USIDToken
                                            ,HttpServletRequest                                 i_Request
                                            ,HttpServletResponse                                i_Response)
     {
         BaseResponse<UserSSO> v_RetResp = new BaseResponse<UserSSO>();
-        String                v_USID    = Help.NVL(i_USID ,i_SessionToken);
+        String                v_USID    = Help.NVL(i_USID ,i_USIDToken);
         
         if ( Help.isNull(v_USID) )
         {
@@ -571,19 +543,18 @@ public class XSSOController
         }
         
         HttpSession v_Session     = i_Request.getSession();
-        UserSSO     v_SessionData = (UserSSO)v_Session.getAttribute($SessionID);
-        UserSSO     v_User        = this.userService.getUser(v_USID);
-        if ( v_User == null )
+        UserSSO     v_SessionUser = this.userService.sessionGetUser(v_Session);
+        UserSSO     v_USIDUser    = this.userService.usidGetUser(v_USID);
+        
+        if ( v_SessionUser != null )
         {
-            return v_RetResp.setCode("-2").setMessage("用户已注销，请勿重复注销");
+            this.userService.sessionRemove(v_Session);
         }
         
-        this.userService.removeUser(v_USID);
-        
-        if ( v_SessionData != null )
+        this.userService.usidRemove(v_USID);
+        if ( v_USIDUser == null )
         {
-            v_Session.removeAttribute($SessionID);
-            v_Session.invalidate();
+            return v_RetResp.setCode("-2").setMessage("用户已注销，请勿重复注销");
         }
         
         $Logger.info("{} 票据已失效，全局会话将销毁。" ,v_USID);

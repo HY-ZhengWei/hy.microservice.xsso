@@ -83,7 +83,7 @@ public class UserSSO extends SerializableDef
     /** 用户性别 */
     private String sex;
     
-    /** 会话票据 */
+    /** 全局会话票据 */
     private String usid;
     
     /** 会话Cookie编码 */

@@ -41,6 +41,12 @@
             </item>
             
             
+            <item id="MS_XSSO_SessionTimeOut">
+                <name>MS_XSSO_SessionTimeOut</name>
+                <value>36000</value>
+                <comment>会话的有效时长（单位：秒）</comment>
+            </item>
+            
         </xparam>
         
     </xconfig>
