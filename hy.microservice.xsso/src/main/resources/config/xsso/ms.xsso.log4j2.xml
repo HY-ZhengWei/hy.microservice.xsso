@@ -12,8 +12,14 @@
     </appenders>
 
     <loggers>
-        <logger name="org.hy.common"            level="debug" />
-        <logger name="org.hy.microservice.xsso" level="debug" />
+        <logger name="org.hy.common" level="debug" additivity="false">
+            <AppenderRef ref="CONSOLE" />
+        </logger>
+        
+        <logger name="org.hy.microservice.xsso" level="debug" additivity="false">
+            <AppenderRef ref="CONSOLE" />
+        </logger>
+        
         <root level="info">
             <appenderref ref="CONSOLE"/>
         </root>

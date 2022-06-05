@@ -30,7 +30,7 @@
             <item id="MS_XSSO_TokenTimeOut">
                 <name>MS_XSSO_TokenTimeOut</name>
                 <value>7200</value>
-                <comment>票据有效时长（单位：秒）</comment>
+                <comment>票据的有效时长（单位：秒）</comment>
             </item>
             
             

@@ -4,7 +4,6 @@ import org.hy.common.StringHelp;
 import org.hy.common.xml.XJava;
 import org.hy.common.xml.plugins.XJavaSpringAnnotationConfigServletWebServerApplicationContext;
 import org.hy.common.xml.plugins.analyse.AnalyseObjectServlet;
-import org.hy.common.xml.plugins.analyse.AnalyseServerServlet;
 import org.hy.common.xml.plugins.analyse.AnalysesServlet;
 import org.hy.microservice.common.VueServlet;
 import org.hy.microservice.xsso.config.XJavaSpringInitialzer;
@@ -38,7 +37,7 @@ public class ProjectStart extends SpringBootServletInitializer
 {
     
     @SuppressWarnings("unused")
-    public static void main(String[] args) 
+    public static void main(String[] args)
     {
         SpringApplication v_SpringApp = new SpringApplication(ProjectStart.class);
         v_SpringApp.addInitializers(new XJavaSpringInitialzer());
@@ -60,7 +59,8 @@ public class ProjectStart extends SpringBootServletInitializer
      *
      * @see org.springframework.boot.web.servlet.support.SpringBootServletInitializer#run(org.springframework.boot.SpringApplication)
      */
-    protected WebApplicationContext run(SpringApplication i_Application) 
+    @Override
+    protected WebApplicationContext run(SpringApplication i_Application)
     {
         i_Application.addInitializers(new XJavaSpringInitialzer());
         i_Application.setApplicationContextFactory(ApplicationContextFactory.ofContextClass(XJavaSpringAnnotationConfigServletWebServerApplicationContext.class));
@@ -105,23 +105,6 @@ public class ProjectStart extends SpringBootServletInitializer
     
     
     /**
-     * 注册数据库性能分析
-     * 
-     * @author      ZhengWei(HY)
-     * @createDate  2018-12-24
-     * @version     v1.0
-     *
-     * @return
-     */
-    @Bean
-    public ServletRegistrationBean<AnalyseServerServlet> analyseServerServlet()
-    {
-        return new ServletRegistrationBean<AnalyseServerServlet>(new AnalyseServerServlet() ,"/analyses/analyseDB");
-    }
-    
-    
-    
-    /**
      * 注册Java对象池分析
      * 
      * @author      ZhengWei(HY)
@@ -133,9 +116,9 @@ public class ProjectStart extends SpringBootServletInitializer
     @Bean
     public ServletRegistrationBean<AnalyseObjectServlet> analyseObjectServlet()
     {
-        ServletRegistrationBean<AnalyseObjectServlet> v_SRB = new ServletRegistrationBean<AnalyseObjectServlet>(new AnalyseObjectServlet() ,"/analyses/analyseObject");
+        ServletRegistrationBean<AnalyseObjectServlet> v_SRB = new ServletRegistrationBean<AnalyseObjectServlet>(new AnalyseObjectServlet() ,"/analyses/analyseObject/*");
         
-        v_SRB.setInitParameters(ImmutableMap.of("password", StringHelp.md5(XJava.getParam("MS_XSSO_Analyses_Password").getValue() ,StringHelp.$MD5_Type_Hex)));  
+        v_SRB.setInitParameters(ImmutableMap.of("password", StringHelp.md5(XJava.getParam("MS_XSSO_Analyses_Password").getValue() ,StringHelp.$MD5_Type_Hex)));
         
         return v_SRB;
     }

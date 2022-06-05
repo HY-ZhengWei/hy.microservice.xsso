@@ -22,7 +22,7 @@ public class BaseViewMode extends SerializableDef
     private static final long serialVersionUID = -3998918924300953503L;
 
     /** 票据号 */
-    private String token;
+    private String  token;
     
     /** 设备号 */
     private String  deviceNo;
@@ -99,7 +99,7 @@ public class BaseViewMode extends SerializableDef
     /**
      * 设置：票据号
      * 
-     * @param token 
+     * @param token
      */
     public void setToken(String token)
     {
@@ -253,7 +253,7 @@ public class BaseViewMode extends SerializableDef
     /**
      * 设置：设备号
      * 
-     * @param deviceNo 
+     * @param deviceNo
      */
     public void setDeviceNo(String deviceNo)
     {
@@ -264,7 +264,7 @@ public class BaseViewMode extends SerializableDef
     /**
      * 设置：设备类型
      * 
-     * @param deviceType 
+     * @param deviceType
      */
     public void setDeviceType(String deviceType)
     {
@@ -275,7 +275,7 @@ public class BaseViewMode extends SerializableDef
     /**
      * 设置：业务类型（值内容由业务决定）
      * 
-     * @param serviceType 
+     * @param serviceType
      */
     public void setServiceType(String serviceType)
     {
@@ -286,7 +286,7 @@ public class BaseViewMode extends SerializableDef
     /**
      * 设置：用户编号
      * 
-     * @param userID 
+     * @param userID
      */
     public void setUserID(String userID)
     {
@@ -297,7 +297,7 @@ public class BaseViewMode extends SerializableDef
     /**
      * 设置：用户名称
      * 
-     * @param userName 
+     * @param userName
      */
     public void setUserName(String userName)
     {
@@ -308,7 +308,7 @@ public class BaseViewMode extends SerializableDef
     /**
      * 设置：用户头像
      * 
-     * @param userIcon 
+     * @param userIcon
      */
     public void setUserIcon(String userIcon)
     {
@@ -319,7 +319,7 @@ public class BaseViewMode extends SerializableDef
     /**
      * 设置：创建时间
      * 
-     * @param createTime 
+     * @param createTime
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss" ,timezone = "GMT+8")
     public void setCreateTime(Date createTime)
@@ -331,7 +331,7 @@ public class BaseViewMode extends SerializableDef
     /**
      * 设置：是否显示。1显示；0不显示
      * 
-     * @param isShow 
+     * @param isShow
      */
     public void setIsShow(Integer isShow)
     {
@@ -342,7 +342,7 @@ public class BaseViewMode extends SerializableDef
     /**
      * 设置：审核状态：0：待审核、1：已审核
      * 
-     * @param auditState 
+     * @param auditState
      */
     public void setAuditState(String auditState)
     {
@@ -353,7 +353,7 @@ public class BaseViewMode extends SerializableDef
     /**
      * 设置：审核结果，0：不通过、1：通过
      * 
-     * @param auditResult 
+     * @param auditResult
      */
     public void setAuditResult(String auditResult)
     {
@@ -364,7 +364,7 @@ public class BaseViewMode extends SerializableDef
     /**
      * 设置：审核时间
      * 
-     * @param auditTime 
+     * @param auditTime
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss" ,timezone = "GMT+8")
     public void setAuditTime(Date auditTime)
@@ -385,7 +385,7 @@ public class BaseViewMode extends SerializableDef
     /**
      * 设置：用户类型
      * 
-     * @param userType 
+     * @param userType
      */
     public void setUserType(String userType)
     {
@@ -436,7 +436,7 @@ public class BaseViewMode extends SerializableDef
     /**
      * 设置：每页显示数量
      * 
-     * @param pagePerCount 
+     * @param pagePerCount
      */
     public void setPagePerCount(Long pagePerCount)
     {
@@ -456,7 +456,7 @@ public class BaseViewMode extends SerializableDef
     /**
      * 设置：总行数
      * 
-     * @param totalCount 
+     * @param totalCount
      */
     public void setTotalCount(Long totalCount)
     {
@@ -476,7 +476,7 @@ public class BaseViewMode extends SerializableDef
     /**
      * 设置：修改时间
      * 
-     * @param updateTime 
+     * @param updateTime
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss" ,timezone = "GMT+8")
     public void setUpdateTime(Date updateTime)
@@ -497,7 +497,7 @@ public class BaseViewMode extends SerializableDef
     /**
      * 设置：删除标记。1删除；0未删除
      * 
-     * @param isDel 
+     * @param isDel
      */
     public void setIsDel(Integer isDel)
     {
@@ -528,7 +528,7 @@ public class BaseViewMode extends SerializableDef
     /**
      * 设置：页码。有效下标从1开始
      * 
-     * @param pageIndex 
+     * @param pageIndex
      */
     public void setPageIndex(Long pageIndex)
     {
@@ -548,7 +548,7 @@ public class BaseViewMode extends SerializableDef
     /**
      * 设置：排列显示顺序。数据越大越在前显示
      * 
-     * @param orderBy 
+     * @param orderBy
      */
     public void setOrderBy(Integer orderBy)
     {
@@ -568,7 +568,7 @@ public class BaseViewMode extends SerializableDef
     /**
      * 设置：过期时间
      * 
-     * @param expireTime 
+     * @param expireTime
      */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss" ,timezone = "GMT+8")
     public void setExpireTime(Date expireTime)

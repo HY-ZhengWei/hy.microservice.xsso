@@ -2,8 +2,6 @@ package org.hy.microservice.common;
 
 import java.util.List;
 
-import org.hy.common.xml.SerializableDef;
-
 
 
 
@@ -15,7 +13,7 @@ import org.hy.common.xml.SerializableDef;
  * @createDate  2021-01-08
  * @version     v1.0
  */
-public class BaseResponse<D> extends SerializableDef
+public class BaseResponse<D> extends BaseResp
 {
     
     private static final long serialVersionUID = -8937744203898397851L;
@@ -23,12 +21,6 @@ public class BaseResponse<D> extends SerializableDef
     public  static final String $Succeed = "200";
     
 
-    /** 响应代码 */
-    private String code;
-    
-    /** 响应消息 */
-    private String message;
-    
     /** 响应数据 */
     private BaseResponseData<D> data;
     
@@ -37,33 +29,17 @@ public class BaseResponse<D> extends SerializableDef
     public BaseResponse()
     {
         this.code    = $Succeed;
-        this.message = "成功"; 
+        this.message = "成功";
     }
     
     
-    /**
-     * 获取：响应代码
-     */
-    public String getCode()
-    {
-        return code;
-    }
-
-    
-    /**
-     * 获取：响应消息
-     */
-    public String getMessage()
-    {
-        return message;
-    }
-
     
     /**
      * 设置：响应代码
      * 
-     * @param code 
+     * @param code
      */
+    @Override
     public BaseResponse<D> setCode(String code)
     {
         this.code = code;
@@ -74,8 +50,9 @@ public class BaseResponse<D> extends SerializableDef
     /**
      * 设置：响应消息
      * 
-     * @param message 
+     * @param message
      */
+    @Override
     public BaseResponse<D> setMessage(String message)
     {
         this.message = message;
@@ -95,7 +72,7 @@ public class BaseResponse<D> extends SerializableDef
     /**
      * 设置：响应数据
      * 
-     * @param data 
+     * @param data
      */
     public BaseResponse<D> setData(BaseResponseData<D> data)
     {
