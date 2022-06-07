@@ -2,9 +2,9 @@ package org.hy.microservice.xsso.user;
 
 import javax.servlet.http.HttpSession;
 
-import org.hy.common.ExpireMap;
 import org.hy.common.StringHelp;
 import org.hy.common.app.Param;
+import org.hy.common.xml.XJava;
 import org.hy.common.xml.annotation.Xjava;
 
 
@@ -30,17 +30,6 @@ public class UserService
     /** 本地会话票据的前缀 */
     public  static final String $SID       = "SID";
     
-    
-    
-    /**
-     * 已登录成功的用户数据。
-     * 
-     * 为了后期从Redis中取用户，禁止直接访问此类。
-     * 
-     * Map.key    为SessionTokenID
-     * Map.value  为用户信息
-     */
-    private static ExpireMap<String ,UserSSO> $USIDToUser = new ExpireMap<String ,UserSSO>();
     
     
     /**
@@ -82,7 +71,7 @@ public class UserService
      */
     public void usidAlive(String i_USID ,UserSSO i_User)
     {
-        $USIDToUser.put(i_USID ,i_User ,Integer.parseInt(sessionTimeOut.getValue()));
+        XJava.putObject(i_USID ,i_User ,Integer.parseInt(sessionTimeOut.getValue()));
     }
     
     
@@ -99,7 +88,7 @@ public class UserService
      */
     public UserSSO usidGetUser(String i_USID)
     {
-        return $USIDToUser.get(i_USID);
+        return (UserSSO)XJava.getObject(i_USID);
     }
     
     
@@ -115,7 +104,7 @@ public class UserService
      */
     public void usidRemove(String i_USID)
     {
-        $USIDToUser.remove(i_USID);
+        XJava.remove(i_USID);
     }
     
     
@@ -132,7 +121,7 @@ public class UserService
      */
     public long usidExpireTimeLen(String i_USID)
     {
-        return $USIDToUser.getExpireTimeLen(i_USID) / 1000;
+        return XJava.getSessionMap().getExpireTimeLen(i_USID) / 1000;
     }
     
     

@@ -27,6 +27,13 @@
             </item>
             
             
+            <item id="MS_XSSO_ServerClusterTimeout">
+                <name>MS_XSSO_ServerClusterTimeout</name>
+                <value>60000</value>
+                <comment>集群并发通讯的超时时长(单位：毫秒)</comment>
+            </item>
+            
+            
             <item id="MS_XSSO_TokenTimeOut">
                 <name>MS_XSSO_TokenTimeOut</name>
                 <value>7200</value>

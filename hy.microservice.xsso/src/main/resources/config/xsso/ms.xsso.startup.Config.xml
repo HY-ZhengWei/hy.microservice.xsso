@@ -17,6 +17,14 @@
                 <value>config/xsso/ms.xsso.appKey.Config.xml</value>
             </item>
             
+            <item>
+                <value>config/xsso/ms.xsso.sys.ServerConfig.xml</value>
+            </item>
+            
+            <item>
+                <value>config/xsso/ms.xsso.sys.ServerCluster.xml</value>
+            </item>
+            
         </startupConfig>
         
     </xconfig>

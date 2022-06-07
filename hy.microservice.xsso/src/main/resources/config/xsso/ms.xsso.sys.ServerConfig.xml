@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config>
+
+    <import name="xconfig"         class="java.util.ArrayList" />
+    <import name="server"          class="org.hy.common.net.netty.rpc.ServerRPC" />
+    <import name="serverUser"      class="org.hy.common.net.data.LoginRequest" />
+    
+    
+    
+    <!-- 本机服务的配置信息 -->
+    <xconfig>
+    
+        <serverUser id="MS_XSSO_ServerUser">
+            <systemName>MSXSSO</systemName>
+            <userName>xssoadmin</userName>
+            <password encrypt="org.hy.common.StringHelp">ff0mxoa9vUTF7D%</password>
+        </serverUser>
+        
+    
+        <ClusterValidate id="ClusterValidate" class="org.hy.microservice.xsso.cluster.ClusterValidate">
+            <constructor>
+                <loginRequest ref="MS_XSSO_ServerUser" />
+            </constructor>
+        </ClusterValidate>
+        
+        
+        <server id="MS_XSSO_Server">
+            <port>3021</port>
+            <validate ref="ClusterValidate" />
+            <call name="start" />
+        </server>
+        
+    </xconfig>
+    
+</config>

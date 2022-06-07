@@ -1,12 +1,13 @@
 package org.hy.microservice.xsso.config;
 
-import java.util.*;
+import java.util.List;
 
 import org.hy.common.Help;
 import org.hy.common.app.Param;
 import org.hy.common.xml.XJava;
 import org.hy.common.xml.log.Logger;
 import org.hy.common.xml.plugins.AppInitConfig;
+import org.hy.microservice.xsso.cluster.ClusterService;
 
 
 
@@ -17,13 +18,13 @@ import org.hy.common.xml.plugins.AppInitConfig;
  * 
  * @author      ZhengWei(HY)、马龙
  * @createDate  2020-11-19
- * @version     v1.0  
+ * @version     v1.0
  */
 public class XJavaInit extends AppInitConfig
 {
     private static Logger  $Logger = Logger.getLogger(XJavaInit.class);
     
-    private static boolean $Init = false;  
+    private static boolean $Init = false;
     
     private String xmlRoot;
     
@@ -69,6 +70,8 @@ public class XJavaInit extends AppInitConfig
             {
                 $Logger.error(exce);
             }
+            
+            ((ClusterService)XJava.getObject("ClusterService")).syncSSOSessions();
         }
     }
 
