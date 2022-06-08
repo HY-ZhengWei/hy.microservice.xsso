@@ -149,7 +149,7 @@ public class XSSOController
             
             v_RetResp.setData(new TokenInfo());
             
-            if ( accessTokenService.existsAppKey(v_AppKey.getAppKey()) )
+            if ( this.accessTokenService.existsAppKey(v_AppKey.getAppKey()) )
             {
                 v_RetResp.getData().getData().setAccessToken( this.accessTokenService.getTokenID(           v_AppKey.getAppKey()));
                 v_RetResp.getData().getData().setExpire((int)(this.accessTokenService.getTokenExpireTimeLen(v_AppKey.getAppKey()) / 1000));
@@ -161,7 +161,7 @@ public class XSSOController
             }
             
             // 生成临时登录Code（有效期：5分钟）
-            v_RetResp.getData().getData().setCode(codeService.makeCode(v_AppKey.getAppKey()));
+            v_RetResp.getData().getData().setCode(this.codeService.makeCode(v_AppKey.getAppKey()));
             return v_RetResp;
         }
         catch (Exception exce)
@@ -295,9 +295,11 @@ public class XSSOController
                 UserSSO v_USIDUser = this.userService.usidGetUser(v_USID);
                 if ( v_USIDUser != null )
                 {
-                    if ( v_SessionUser != null )
+                    if ( v_SessionUser != null && !v_USID.equals(v_SessionUser.getUsid()) )
                     {
-                        // TODO 此处应通知所有单点服务器，退出之前的老会话
+                        // 此处应通知所有单点服务器，退出之前的老会话
+                        this.userService.usidRemove(v_SessionUser.getUsid());
+                        this.userService.usidRemove(v_SessionUser.getSessionID());
                     }
 
                     v_USIDUser.setUsid(v_USID);
@@ -549,6 +551,7 @@ public class XSSOController
         if ( v_SessionUser != null )
         {
             this.userService.sessionRemove(v_Session);
+            this.userService.usidRemove(v_SessionUser.getSessionID());
         }
         
         this.userService.usidRemove(v_USID);

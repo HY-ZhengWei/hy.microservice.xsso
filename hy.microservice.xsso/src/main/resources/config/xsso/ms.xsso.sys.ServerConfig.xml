@@ -5,6 +5,8 @@
     <import name="xconfig"         class="java.util.ArrayList" />
     <import name="server"          class="org.hy.common.net.netty.rpc.ServerRPC" />
     <import name="serverUser"      class="org.hy.common.net.data.LoginRequest" />
+    <import name="xparam"          class="java.util.Hashtable" />
+    <import name="item"            class="org.hy.common.app.Param" />
     
     
     
@@ -30,6 +32,17 @@
             <validate ref="ClusterValidate" />
             <call name="start" />
         </server>
+        
+        
+        <xparam this="SYSParam_MS_XSSO" key="name">
+        
+            <item id="MS_XSSO_Server_WhoAmI">
+                <name>MS_XSSO_Server_WhoAmI</name>
+                <value>127.0.0.1</value>
+                <comment>在集群服务中标识出自己。请不要填写端口</comment>
+            </item>
+            
+        </xparam>
         
     </xconfig>
     

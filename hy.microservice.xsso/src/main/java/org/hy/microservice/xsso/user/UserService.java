@@ -2,10 +2,12 @@ package org.hy.microservice.xsso.user;
 
 import javax.servlet.http.HttpSession;
 
+import org.hy.common.Help;
 import org.hy.common.StringHelp;
 import org.hy.common.app.Param;
 import org.hy.common.xml.XJava;
 import org.hy.common.xml.annotation.Xjava;
+import org.hy.microservice.xsso.cluster.ClusterService;
 
 
 
@@ -36,7 +38,10 @@ public class UserService
      * 票据有效时长（单位：秒）
      */
     @Xjava(ref="MS_XSSO_SessionTimeOut")
-    private Param sessionTimeOut;
+    private Param          sessionTimeOut;
+    
+    @Xjava
+    private ClusterService clusterService;
     
     
     
@@ -71,7 +76,15 @@ public class UserService
      */
     public void usidAlive(String i_USID ,UserSSO i_User)
     {
+        if ( Help.isNull(i_USID) )
+        {
+            return;
+        }
+        
         XJava.putObject(i_USID ,i_User ,Integer.parseInt(sessionTimeOut.getValue()));
+        
+        // 同时，向单点集群（服务端）同步会话
+        this.clusterService.aliveCluster(i_USID ,i_User ,getMaxExpireTimeLen());
     }
     
     
@@ -104,7 +117,15 @@ public class UserService
      */
     public void usidRemove(String i_USID)
     {
+        if ( Help.isNull(i_USID) )
+        {
+            return;
+        }
+        
         XJava.remove(i_USID);
+        
+        // 同时，向单点集群（服务端）同步会话
+        this.clusterService.logoutCluster(i_USID);
     }
     
     
@@ -167,13 +188,16 @@ public class UserService
      * @version     v1.0
      * 
      * @param i_Session
-     * @param i_User
+     * @param io_User
      */
-    public void sessionAlive(final HttpSession i_Session ,UserSSO i_User)
+    public void sessionAlive(final HttpSession i_Session ,UserSSO io_User)
     {
-        i_User.setSessionID(this.sessionGetID(i_Session));
+        io_User.setSessionID(this.sessionGetID(i_Session));
         i_Session.setMaxInactiveInterval(Integer.parseInt(sessionTimeOut.getValue()));
-        i_Session.setAttribute($SessionID ,i_User);
+        i_Session.setAttribute($SessionID ,io_User);
+        
+        // 同时，向单点集群（服务端）同步会话。但此处是按 SessionID 同步的但
+        this.clusterService.aliveCluster(io_User.getSessionID() ,io_User ,getMaxExpireTimeLen());
     }
     
     
