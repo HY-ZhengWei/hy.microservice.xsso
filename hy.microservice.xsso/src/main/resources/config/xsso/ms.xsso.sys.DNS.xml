@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config>
+
+    <import name="xconfig"         class="java.util.ArrayList" />
+    <import name="dnsMap"          class="java.util.Hashtable" />
+    <import name="dnsList"         class="java.util.ArrayList" />
+    <import name="dns"             class="org.hy.common.app.Param" />
+    
+    
+    
+    <!-- 域名配置参数信息 -->
+    <xconfig>
+    
+        <!-- 全小写匹配（请填写为小写的），并允许的配置，可配置多个 -->
+        <dnsMap id="MS_XSSO_DNSConfigs" key="name">
+        
+            <dns>
+                <name>127.0.0.1</name>
+                <comment>开发本机</comment>
+            </dns>
+            
+        </dnsMap>
+        
+        
+        
+        <!-- IP前缀匹配，并允许的配置，可配置多个 -->
+        <dnsList id="MS_XSSO_DNSIPConfigs">
+            
+            <dns>
+                <name>xxx.xxx.xxx.</name>
+                <comment>xxx段</comment>
+            </dns>
+            
+        </dnsList>
+        
+    </xconfig>
+    
+</config>

@@ -114,6 +114,7 @@
         </dependency>
         
         <!-- https://github.com/HY-ZhengWei/hy.common.base -->
+        <!-- https://gitee.com/HY-ZhengWei/hy.common.base -->
         <dependency>
             <groupId>org</groupId>
             <artifactId>hy.common.base</artifactId>
@@ -129,6 +130,7 @@
         </dependency>
         
         <!-- https://github.com/HY-ZhengWei/hy.common.license -->
+        <!-- https://gitee.com/HY-ZhengWei/hy.common.license -->
         <dependency>
             <groupId>org</groupId>
             <artifactId>hy.common.license</artifactId>
@@ -136,6 +138,7 @@
         </dependency>
         
         <!-- https://github.com/HY-ZhengWei/hy.common.xjava -->
+        <!-- https://gitee.com/HY-ZhengWei/hy.common.xjava -->
         <dependency>
             <groupId>org</groupId>
             <artifactId>hy.common.xjava</artifactId>

@@ -25,6 +25,10 @@
                 <value>config/xsso/ms.xsso.sys.ServerCluster.xml</value>
             </item>
             
+            <item>
+                <value>config/xsso/ms.xsso.sys.DNS.xml</value>
+            </item>
+            
         </startupConfig>
         
     </xconfig>
