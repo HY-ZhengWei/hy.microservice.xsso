@@ -2,6 +2,7 @@ package org.hy.microservice.xsso.user;
 
 import java.util.Map;
 
+import org.hy.common.Date;
 import org.hy.common.xml.SerializableDef;
 
 
@@ -91,6 +92,12 @@ public class UserSSO extends SerializableDef
     
     /** 会话ID */
     private String sessionID;
+    
+    /** 登录时间 */
+    private Date loginTime;
+    
+    /** 活动时间 */
+    private Date aliveTime;
     
     /** 附加用户数据 */
     private Map<String ,String> datas;
@@ -594,6 +601,66 @@ public class UserSSO extends SerializableDef
     public void setUserLogoUrl(String userLogoUrl)
     {
         this.userLogoUrl = userLogoUrl;
+    }
+
+
+    /**
+     * 获取：用户在第三方系统的头像地址
+     */
+    public Date getLoginTime()
+    {
+        return loginTime;
+    }
+
+
+    /**
+     * 设置：用户在第三方系统的头像地址
+     * 
+     * @param userLogoUrl
+     */
+    public void setLoginTime(Date loginTime)
+    {
+        this.loginTime = loginTime;
+    }
+
+
+    /**
+     * 获取：活动时间
+     */
+    public Date getAliveTime()
+    {
+        return aliveTime;
+    }
+
+
+    /**
+     * 设置：活动时间
+     * 
+     * @param userLogoUrl
+     */
+    public void setAliveTime(Date aliveTime)
+    {
+        this.aliveTime = aliveTime;
+    }
+
+
+    @Override
+    public String toString()
+    {
+        StringBuilder v_Buffer = new StringBuilder();
+        
+        if ( this.aliveTime != null )
+        {
+            v_Buffer.append(this.aliveTime.getFull()).append(" ");
+        }
+        else if ( this.loginTime != null )
+        {
+            v_Buffer.append(this.loginTime.getFull()).append(" ");
+        }
+        
+        v_Buffer.append(this.userId).append(" ").append(this.userName).append("(").append(this.userNo).append(")");
+        
+        return v_Buffer.toString();
     }
     
 }

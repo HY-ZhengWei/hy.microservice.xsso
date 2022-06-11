@@ -254,6 +254,7 @@ public class XSSOController
             return v_RetResp.setCode("-103").setMessage("用户ID为空");
         }
         
+        i_UserSSO.setLoginTime(new Date());
         v_RetResp.setData(new TokenInfo());
         v_RetResp.getData().getData().setSessionToken(this.userService.usidMake(i_UserSSO));
         v_RetResp.getData().getData().setExpire((int)userService.getMaxExpireTimeLen());
@@ -304,6 +305,7 @@ public class XSSOController
 
                     v_USIDUser.setUsid(v_USID);
                     v_USIDUser.setSessionID(this.userService.sessionGetID(v_Session));
+                    v_USIDUser.setAliveTime(new Date());
                     this.userService.sessionAlive(v_Session              ,v_USIDUser);
                     this.userService.usidAlive(v_USID                    ,v_USIDUser);
                     this.userService.usidAlive(v_USIDUser.getSessionID() ,v_USIDUser);  // 再用SessionID多保活（或冗余一份用户数据）
@@ -378,6 +380,7 @@ public class XSSOController
                     {
                         // 设置UserSSO.setSessionID(...)，在多种终端设备的情况下，可能出现与上次的值不一样
                         v_USIDUser.setSessionID(this.userService.sessionGetID(v_Session));
+                        v_USIDUser.setAliveTime(new Date());
                         this.userService.usidAlive(v_USID ,v_USIDUser);
                         v_IsAlive++;
                     }
@@ -388,6 +391,7 @@ public class XSSOController
             v_SessionUser = this.userService.sessionGetUser(v_Session);
             if ( v_SessionUser != null )
             {
+                v_SessionUser.setAliveTime(new Date());
                 this.userService.sessionAlive(v_Session ,v_SessionUser);
                 if ( v_IsAlive == 0 )
                 {

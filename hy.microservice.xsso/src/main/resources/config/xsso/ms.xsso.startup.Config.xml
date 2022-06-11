@@ -29,6 +29,10 @@
                 <value>config/xsso/ms.xsso.sys.DNS.xml</value>
             </item>
             
+            <item>
+                <value>config/xsso/ms.xsso.AnalysesCatalogue.xml</value>
+            </item>
+            
         </startupConfig>
         
     </xconfig>
