@@ -82,21 +82,28 @@ public class ClusterService
      */
     private synchronized boolean startAndLogin(ClientCluster i_Client)
     {
+        $Logger.debug("启动并登录 S. " + i_Client.getHost() + ":" + i_Client.getPort());
+        
         if ( !i_Client.operation().isStartServer() )
         {
             i_Client.operation().startServer();
         }
         
+        boolean v_Ret = false;
         if ( !i_Client.operation().isLogin() )
         {
             LoginResponse v_Response = i_Client.operation().login(ClusterValidate.encryptPassword(this.loginRequest));
             
-            return v_Response.getResult() == LoginResponse.$Succeed;
+            v_Ret = v_Response.getResult() == LoginResponse.$Succeed;
         }
         else
         {
-            return true;
+            v_Ret = true;
         }
+        
+        $Logger.debug("启动并登录 F. " + i_Client.getHost() + ":" + i_Client.getPort());
+        
+        return v_Ret;
     }
     
     
@@ -147,6 +154,36 @@ public class ClusterService
     
     
     /**
+     * 设置应用系统AppKey对应的 "访问票据"
+     * 
+     * @author      ZhengWei(HY)
+     * @createDate  2022-06-17
+     * @version     v1.0
+     *
+     * @param i_AppKey   应用签名
+     * @param i_TokenID  访问级票据
+     */
+    public void setAccessToken(String i_AppKey ,String i_TokenID)
+    {
+        $Logger.debug("设置访问票据 S. " + i_AppKey + ":" + i_TokenID);
+        
+        List<ClientCluster> v_Servers = this.getSSOServersNoMy();
+        
+        if ( !Help.isNull(v_Servers) )
+        {
+            ClientSocketCluster.sendCommands(v_Servers
+                                            ,this.getClusterTimeout()
+                                            ,"AccessTokenService"
+                                            ,"setToken"
+                                            ,new Object[] {i_AppKey ,i_TokenID});
+        }
+        
+        $Logger.debug("设置访问票据 F. " + i_AppKey + ":" + i_TokenID);
+    }
+    
+    
+    
+    /**
      * 用户首次登陆时，集群同步单点登陆信息
      * 
      * @author      ZhengWei(HY)
@@ -158,6 +195,8 @@ public class ClusterService
      */
     public void loginCluster(String i_USID ,UserSSO i_User ,long i_DataExpireTimeLen)
     {
+        $Logger.debug("用户登陆 S. " + i_USID + ":" + i_User.getLoginAccount());
+        
         List<ClientCluster> v_Servers = this.getSSOServersNoMy();
         
         if ( !Help.isNull(v_Servers) )
@@ -168,6 +207,8 @@ public class ClusterService
                                            ,i_User
                                            ,i_DataExpireTimeLen);
         }
+        
+        $Logger.debug("用户登陆 F. " + i_USID + ":" + i_User.getLoginAccount());
     }
     
     
@@ -183,12 +224,16 @@ public class ClusterService
      */
     public void logoutCluster(String i_USID)
     {
+        $Logger.debug("用户退出 S. " + i_USID);
+        
         List<ClientCluster> v_Servers = this.getSSOServersNoMy();
         
         if ( !Help.isNull(v_Servers) )
         {
             ClientSocketCluster.removeObjects(v_Servers ,this.getClusterTimeout() ,i_USID);
         }
+        
+        $Logger.debug("用户退出 F. " + i_USID);
     }
     
     
@@ -206,6 +251,8 @@ public class ClusterService
      */
     public void aliveCluster(String i_USID ,UserSSO i_User ,long i_DataExpireTimeLen)
     {
+        $Logger.debug("保活 S. " + i_USID + ":" + i_User.getLoginAccount());
+        
         List<ClientCluster> v_Servers = this.getSSOServersNoMy();
         
         if ( !Help.isNull(v_Servers) )
@@ -216,6 +263,8 @@ public class ClusterService
                                            ,i_User
                                            ,i_DataExpireTimeLen);
         }
+        
+        $Logger.debug("保活 F. " + i_USID + ":" + i_User.getLoginAccount());
     }
     
     

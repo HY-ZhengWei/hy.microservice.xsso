@@ -118,7 +118,7 @@
         <dependency>
             <groupId>org</groupId>
             <artifactId>hy.common.base</artifactId>
-            <version>1.0.158</version>
+            <version>1.0.159</version>
         </dependency>
         
         <!-- https://github.com/HY-ZhengWei/hy.common.net -->
@@ -126,7 +126,7 @@
         <dependency>
             <groupId>org</groupId>
             <artifactId>hy.common.net</artifactId>
-            <version>3.0.0</version>
+            <version>3.0.1</version>
         </dependency>
         
         <!-- https://github.com/HY-ZhengWei/hy.common.license -->
@@ -142,7 +142,7 @@
         <dependency>
             <groupId>org</groupId>
             <artifactId>hy.common.xjava</artifactId>
-            <version>4.1.3</version>
+            <version>4.1.4</version>
         </dependency>
         
         <dependency>

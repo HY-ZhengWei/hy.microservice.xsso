@@ -84,6 +84,9 @@ public class UserSSO extends SerializableDef
     /** 用户性别 */
     private String sex;
     
+    /** 用户IP地址 */
+    private String ip;
+    
     /** 全局会话票据 */
     private String usid;
     
@@ -605,7 +608,7 @@ public class UserSSO extends SerializableDef
 
 
     /**
-     * 获取：用户在第三方系统的头像地址
+     * 获取：登录时间
      */
     public Date getLoginTime()
     {
@@ -614,9 +617,9 @@ public class UserSSO extends SerializableDef
 
 
     /**
-     * 设置：用户在第三方系统的头像地址
+     * 设置：登录时间
      * 
-     * @param userLogoUrl
+     * @param loginTime
      */
     public void setLoginTime(Date loginTime)
     {
@@ -636,11 +639,31 @@ public class UserSSO extends SerializableDef
     /**
      * 设置：活动时间
      * 
-     * @param userLogoUrl
+     * @param aliveTime
      */
     public void setAliveTime(Date aliveTime)
     {
         this.aliveTime = aliveTime;
+    }
+    
+    
+    /**
+     * 获取：用户IP地址
+     */
+    public String getIp()
+    {
+        return ip;
+    }
+
+
+    /**
+     * 设置：用户IP地址
+     * 
+     * @param i_Ip
+     */
+    public void setIp(String i_Ip)
+    {
+        this.ip = i_Ip;
     }
 
 

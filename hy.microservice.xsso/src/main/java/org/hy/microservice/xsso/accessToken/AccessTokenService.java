@@ -4,6 +4,7 @@ import org.hy.common.ExpireMap;
 import org.hy.common.StringHelp;
 import org.hy.common.app.Param;
 import org.hy.common.xml.annotation.Xjava;
+import org.hy.microservice.xsso.cluster.ClusterService;
 
 
 
@@ -21,6 +22,9 @@ import org.hy.common.xml.annotation.Xjava;
 @Xjava
 public class AccessTokenService
 {
+    
+    /** 访问票据的前缀 */
+    public  static final String $AID = "AID";
     
     /**
      * 生成的访问TokenID
@@ -43,6 +47,9 @@ public class AccessTokenService
      */
     @Xjava(ref="MS_XSSO_TokenTimeOut")
     private Param tokenTimeOut;
+    
+    @Xjava
+    private ClusterService clusterService;
     
     
     
@@ -144,7 +151,7 @@ public class AccessTokenService
      */
     public String makeToken(String i_AppKey)
     {
-        String v_Token = StringHelp.getUUID();
+        String v_Token = $AID + StringHelp.getUUID();
         
         this.setToken(i_AppKey ,v_Token);
         
@@ -168,6 +175,9 @@ public class AccessTokenService
     {
         $AppKeyToAccessTokenIDs.put(i_AppKey  ,i_TokenID ,Integer.parseInt(tokenTimeOut.getValue()));
         $AccessTokenIDToAppKeys.put(i_TokenID ,i_AppKey  ,Integer.parseInt(tokenTimeOut.getValue()));
+        
+        // 同时，向单点集群（服务端）同步会话
+        this.clusterService.setAccessToken(i_AppKey ,i_TokenID);
     }
     
 }

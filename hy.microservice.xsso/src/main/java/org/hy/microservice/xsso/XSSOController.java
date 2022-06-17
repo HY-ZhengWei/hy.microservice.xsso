@@ -186,7 +186,7 @@ public class XSSOController
      */
     @RequestMapping(value="getAppKey" ,method={RequestMethod.GET})
     @ResponseBody
-    public BaseResponse<TokenInfo> getAppKey(@RequestParam("token") String i_AccessToken)
+    public BaseResponse<TokenInfo> getAppKey(@RequestParam(name="token" ,required=false) String i_AccessToken)
     {
         BaseResponse<TokenInfo> v_RetResp = new BaseResponse<TokenInfo>();
         
@@ -224,7 +224,9 @@ public class XSSOController
      */
     @RequestMapping(value="setLoginUser" ,method={RequestMethod.POST} ,produces=MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
-    public BaseResponse<TokenInfo> setLoginUser(@RequestParam("code") String i_Code ,@RequestBody UserSSO i_UserSSO ,HttpServletRequest i_Request)
+    public BaseResponse<TokenInfo> setLoginUser(@RequestParam(name="code" ,required=false) String  i_Code
+                                               ,@RequestBody                               UserSSO i_UserSSO
+                                               ,HttpServletRequest i_Request)
     {
         BaseResponse<TokenInfo> v_RetResp = new BaseResponse<TokenInfo>();
         
@@ -488,33 +490,51 @@ public class XSSOController
     /**
      * 获取登录用户信息。
      * 
-     * 注：仅允许内网服务器访问使用
+     * 注：白名单有限使用
      * 
      * @author      ZhengWei(HY)
      * @createDate  2021-02-03
      * @version     v1.0
      *
-     * @param i_USID       会话级票据，与i_SessionToken同义，传送两参数任何一个即可，仅为支持老接口而并存
-     * @param i_USIDToken  会话级票据，与i_USID        同义，传送两参数任何一个即可，仅为支持老接口而并存
+     * @param i_AccessToken  访问级票据
+     * @param i_USID         会话级票据，与i_SessionToken同义，传送两参数任何一个即可，仅为支持老接口而并存
+     * @param i_USIDToken    会话级票据，与i_USID        同义，传送两参数任何一个即可，仅为支持老接口而并存
      * @return
      */
-    @RequestMapping(value="getLoginUser" ,method={RequestMethod.GET})
+    @RequestMapping(value="getLoginUser" ,method={RequestMethod.GET ,RequestMethod.POST})
     @ResponseBody
-    public BaseResponse<UserSSO> getLoginUser(@RequestParam(name="USID"  ,required=false) String i_USID
-                                             ,@RequestParam(name="token" ,required=false) String i_USIDToken)
+    public BaseResponse<UserSSO> getLoginUser(@RequestParam(name="accessToken" ,required=false) String i_AccessToken
+                                             ,@RequestParam(name="USID"        ,required=false) String i_USID
+                                             ,@RequestParam(name="token"       ,required=false) String i_USIDToken)
     {
         BaseResponse<UserSSO> v_RetResp = new BaseResponse<UserSSO>();
         String                v_USID        = Help.NVL(i_USID ,i_USIDToken);
         
+        if ( Help.isNull(i_AccessToken) )
+        {
+            return v_RetResp.setCode("-1").setMessage("访问票据无效或已过期");
+        }
+        
+        String v_AppKey = this.accessTokenService.getAppKey(i_AccessToken);
+        if ( v_AppKey == null )
+        {
+            return v_RetResp.setCode("-1").setMessage("访问票据无效或已过期");
+        }
+        
         if ( Help.isNull(v_USID) )
         {
-            return v_RetResp.setCode("-1").setMessage(v_USID + " 票据无效或已过期");
+            return v_RetResp.setCode("-2").setMessage(v_USID + " 会议票据无效或已过期");
         }
         
         UserSSO v_USIDUser = this.userService.usidGetUser(v_USID);
         if ( v_USIDUser == null )
         {
-            return v_RetResp.setCode("-1").setMessage(v_USID + " 票据无效或已过期");
+            return v_RetResp.setCode("-2").setMessage(v_USID + " 会议票据无效或已过期");
+        }
+        
+        if ( !v_AppKey.equals(v_USIDUser.getAppKey()) )
+        {
+            return v_RetResp.setCode("-3").setMessage(v_USID + " 访问票据与会议票据不能跨系统使用");
         }
         
         return v_RetResp.setData(v_USIDUser);
