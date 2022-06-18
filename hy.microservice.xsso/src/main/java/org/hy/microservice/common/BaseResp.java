@@ -1,5 +1,6 @@
 package org.hy.microservice.common;
 
+import org.hy.common.Date;
 import org.hy.common.xml.SerializableDef;
 
 
@@ -26,6 +27,9 @@ public class BaseResp extends SerializableDef
     
     /** 响应消息 */
     protected String message;
+    
+    /** 响应时间 */
+    protected Date   respTime;
     
     
     
@@ -74,6 +78,29 @@ public class BaseResp extends SerializableDef
     public BaseResp setMessage(String message)
     {
         this.message = message;
+        return this;
+    }
+
+
+    /**
+     * 获取：响应时间
+     * 
+     * @return
+     */
+    public Date getRespTime()
+    {
+        return respTime;
+    }
+
+
+    /**
+     * 设置：响应时间
+     * 
+     * @return
+     */
+    public BaseResp setRespTime(Date respTime)
+    {
+        this.respTime = respTime;
         return this;
     }
     

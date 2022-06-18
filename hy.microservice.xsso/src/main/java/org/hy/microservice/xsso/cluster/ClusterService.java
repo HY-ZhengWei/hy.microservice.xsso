@@ -44,6 +44,12 @@ public class ClusterService
     @Xjava(ref="MS_XSSO_ServerClusterTimeout")
     private Param               clusterTimeout;
     
+    /**
+     * 访问票据的有效时长（单位：秒）
+     */
+    @Xjava(ref="MS_XSSO_TokenTimeOut")
+    private Param               tokenTimeOut;
+    
     @Xjava(ref="MS_XSSO_ServerUser")
     private LoginRequest        loginRequest;
     
@@ -71,6 +77,18 @@ public class ClusterService
         {
             return Long.parseLong(Help.NVL(this.clusterTimeout.getValue() ,"" + $DefaultClusterTimeout));
         }
+    }
+    
+    
+    
+    /**
+     * 票据的有效时长（单位：秒）
+     * 
+     * @return
+     */
+    public int getAccessTokenTimeOut()
+    {
+        return Integer.parseInt(tokenTimeOut.getValue());
     }
     
     
@@ -171,11 +189,17 @@ public class ClusterService
         
         if ( !Help.isNull(v_Servers) )
         {
-            ClientSocketCluster.sendCommands(v_Servers
-                                            ,this.getClusterTimeout()
-                                            ,"AccessTokenService"
-                                            ,"setToken"
-                                            ,new Object[] {i_AppKey ,i_TokenID});
+            ClientSocketCluster.sendObjects(v_Servers
+                                           ,this.getClusterTimeout()
+                                           ,i_AppKey
+                                           ,i_TokenID
+                                           ,this.getAccessTokenTimeOut());
+            
+            ClientSocketCluster.sendObjects(v_Servers
+                                           ,this.getClusterTimeout()
+                                           ,i_TokenID
+                                           ,i_AppKey
+                                           ,this.getAccessTokenTimeOut());
         }
         
         $Logger.debug("设置访问票据 F. " + i_AppKey + ":" + i_TokenID);

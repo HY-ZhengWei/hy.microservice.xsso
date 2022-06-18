@@ -1,8 +1,8 @@
 package org.hy.microservice.xsso.accessToken;
 
-import org.hy.common.ExpireMap;
 import org.hy.common.StringHelp;
 import org.hy.common.app.Param;
+import org.hy.common.xml.XJava;
 import org.hy.common.xml.annotation.Xjava;
 import org.hy.microservice.xsso.cluster.ClusterService;
 
@@ -32,7 +32,7 @@ public class AccessTokenService
      * map.key    为AppKey
      * map.value  为AccessTokenID
      */
-    private static ExpireMap<String ,String>  $AppKeyToAccessTokenIDs = new ExpireMap<String ,String>();
+    // private static ExpireMap<String ,String>  $AppKeyToAccessTokenIDs = new ExpireMap<String ,String>();
     
     /**
      * 生成的访问TokenID
@@ -40,7 +40,7 @@ public class AccessTokenService
      * map.key    为AccessTokenID
      * map.value  为AppKey
      */
-    private static ExpireMap<String ,String>  $AccessTokenIDToAppKeys = new ExpireMap<String ,String>();
+    // private static ExpireMap<String ,String>  $AccessTokenIDToAppKeys = new ExpireMap<String ,String>();
     
     /**
      * 票据的有效时长（单位：秒）
@@ -50,6 +50,18 @@ public class AccessTokenService
     
     @Xjava
     private ClusterService clusterService;
+    
+    
+    
+    /**
+     * 票据的有效时长（单位：秒）
+     * 
+     * @return
+     */
+    public int getAccessTokenTimeOut()
+    {
+        return Integer.parseInt(tokenTimeOut.getValue());
+    }
     
     
     
@@ -65,7 +77,8 @@ public class AccessTokenService
      */
     public boolean existsAppKey(String i_AppKey)
     {
-        return $AppKeyToAccessTokenIDs.containsKey(i_AppKey);
+        // return $AppKeyToAccessTokenIDs.containsKey(i_AppKey);
+        return XJava.getSessionMap().containsKey(i_AppKey);
     }
     
     
@@ -82,7 +95,8 @@ public class AccessTokenService
      */
     public String getTokenID(String i_AppKey)
     {
-        return $AppKeyToAccessTokenIDs.get(i_AppKey);
+        // return $AppKeyToAccessTokenIDs.get(i_AppKey);
+        return (String)XJava.getSessionMap().get(i_AppKey);
     }
     
     
@@ -99,7 +113,8 @@ public class AccessTokenService
      */
     public String getAppKey(String i_TokenID)
     {
-        return $AccessTokenIDToAppKeys.get(i_TokenID);
+        // return $AccessTokenIDToAppKeys.get(i_TokenID);
+        return (String)XJava.getSessionMap().get(i_TokenID);
     }
     
     
@@ -116,7 +131,8 @@ public class AccessTokenService
      */
     public long getTokenExpireTimeLen(String i_AppKey)
     {
-        return $AppKeyToAccessTokenIDs.getExpireTimeLen(i_AppKey);
+        // return $AppKeyToAccessTokenIDs.getExpireTimeLen(i_AppKey);
+        return XJava.getSessionMap().getExpireTimeLen(i_AppKey);
     }
     
     
@@ -133,7 +149,8 @@ public class AccessTokenService
      */
     public long getAppKeyExpireTimeLen(String i_TokenID)
     {
-        return $AccessTokenIDToAppKeys.getExpireTimeLen(i_TokenID);
+        // return $AccessTokenIDToAppKeys.getExpireTimeLen(i_TokenID);
+        return XJava.getSessionMap().getExpireTimeLen(i_TokenID);
     }
     
     
@@ -173,8 +190,10 @@ public class AccessTokenService
      */
     public void setToken(String i_AppKey ,String i_TokenID)
     {
-        $AppKeyToAccessTokenIDs.put(i_AppKey  ,i_TokenID ,Integer.parseInt(tokenTimeOut.getValue()));
-        $AccessTokenIDToAppKeys.put(i_TokenID ,i_AppKey  ,Integer.parseInt(tokenTimeOut.getValue()));
+        // $AppKeyToAccessTokenIDs.put(i_AppKey  ,i_TokenID ,Integer.parseInt(tokenTimeOut.getValue()));
+        // $AccessTokenIDToAppKeys.put(i_TokenID ,i_AppKey  ,Integer.parseInt(tokenTimeOut.getValue()));
+        XJava.getSessionMap().put(i_TokenID ,i_AppKey  ,this.getAccessTokenTimeOut());
+        XJava.getSessionMap().put(i_TokenID ,i_AppKey  ,this.getAccessTokenTimeOut());
         
         // 同时，向单点集群（服务端）同步会话
         this.clusterService.setAccessToken(i_AppKey ,i_TokenID);

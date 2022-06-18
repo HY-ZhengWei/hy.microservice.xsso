@@ -1,5 +1,6 @@
 package org.hy.microservice.xsso;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +18,8 @@ import org.hy.microservice.common.BaseResponse;
 import org.hy.microservice.xsso.accessToken.AccessTokenService;
 import org.hy.microservice.xsso.accessToken.CodeService;
 import org.hy.microservice.xsso.accessToken.TokenInfo;
+import org.hy.microservice.xsso.report.ReportInfo;
+import org.hy.microservice.xsso.report.ReportService;
 import org.hy.microservice.xsso.user.UserSSO;
 import org.hy.microservice.xsso.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +68,10 @@ public class XSSOController
     @Autowired
     @Qualifier("UserService")
     private UserService         userService;
+    
+    @Autowired
+    @Qualifier("ReportService")
+    private ReportService       reportService;
     
     
     
@@ -126,10 +133,10 @@ public class XSSOController
         }
         
         if ( Help.isNull(i_Token.getTimestamp())
-          || i_Token.getTimestamp() > v_Now + 1000 * 60
+          || i_Token.getTimestamp() > v_Now + 1000 * 60 * 3
           || i_Token.getTimestamp() < v_Now - 1000 * 60 * 3 )
         {
-            return v_RetResp.setCode("-3").setMessage("时间戳无效或已过期");
+            return v_RetResp.setCode("-3").setMessage("时间戳无效或已过期").setRespTime(new Date());
         }
         
         if ( Help.isNull(i_Token.getSignature()) )
@@ -507,34 +514,51 @@ public class XSSOController
                                              ,@RequestParam(name="USID"        ,required=false) String i_USID
                                              ,@RequestParam(name="token"       ,required=false) String i_USIDToken)
     {
-        BaseResponse<UserSSO> v_RetResp = new BaseResponse<UserSSO>();
-        String                v_USID        = Help.NVL(i_USID ,i_USIDToken);
+        BaseResponse<UserSSO> v_RetResp  = new BaseResponse<UserSSO>();
+        String                v_USID     = Help.NVL(i_USID ,i_USIDToken);
+        UserSSO               v_USIDUser = null;
         
         if ( Help.isNull(i_AccessToken) )
         {
-            return v_RetResp.setCode("-1").setMessage("访问票据无效或已过期");
+            if ( Help.isNull(v_USID) )
+            {
+                return v_RetResp.setCode("-2").setMessage(v_USID + " 会议票据无效或已过期");
+            }
+            
+            v_USIDUser = this.userService.usidGetUser(v_USID);
+            if ( v_USIDUser == null )
+            {
+                return v_RetResp.setCode("-2").setMessage(v_USID + " 会议票据无效或已过期");
+            }
         }
-        
-        String v_AppKey = this.accessTokenService.getAppKey(i_AccessToken);
-        if ( v_AppKey == null )
+        else
         {
-            return v_RetResp.setCode("-1").setMessage("访问票据无效或已过期");
-        }
-        
-        if ( Help.isNull(v_USID) )
-        {
-            return v_RetResp.setCode("-2").setMessage(v_USID + " 会议票据无效或已过期");
-        }
-        
-        UserSSO v_USIDUser = this.userService.usidGetUser(v_USID);
-        if ( v_USIDUser == null )
-        {
-            return v_RetResp.setCode("-2").setMessage(v_USID + " 会议票据无效或已过期");
-        }
-        
-        if ( !v_AppKey.equals(v_USIDUser.getAppKey()) )
-        {
-            return v_RetResp.setCode("-3").setMessage(v_USID + " 访问票据与会议票据不能跨系统使用");
+            if ( Help.isNull(i_AccessToken) )
+            {
+                return v_RetResp.setCode("-1").setMessage("访问票据无效或已过期");
+            }
+            
+            String v_AppKey = this.accessTokenService.getAppKey(i_AccessToken);
+            if ( v_AppKey == null )
+            {
+                return v_RetResp.setCode("-1").setMessage("访问票据无效或已过期");
+            }
+            
+            if ( Help.isNull(v_USID) )
+            {
+                return v_RetResp.setCode("-2").setMessage(v_USID + " 会议票据无效或已过期");
+            }
+            
+            v_USIDUser = this.userService.usidGetUser(v_USID);
+            if ( v_USIDUser == null )
+            {
+                return v_RetResp.setCode("-2").setMessage(v_USID + " 会议票据无效或已过期");
+            }
+            
+            if ( !v_AppKey.equals(v_USIDUser.getAppKey()) )
+            {
+                return v_RetResp.setCode("-3").setMessage(v_USID + " 访问票据与会议票据不能跨系统使用");
+            }
         }
         
         return v_RetResp.setData(v_USIDUser);
@@ -586,6 +610,41 @@ public class XSSOController
         
         $Logger.info("{} 票据已失效，全局会话将销毁。" ,v_USID);
         return v_RetResp;
+    }
+    
+    
+    
+    /**
+     * 获取登录用户统计
+     * 
+     * @author      ZhengWei(HY)
+     * @createDate  2022-06-18
+     * @version     v1.0
+     *
+     * @param i_AccessToken       访问级票据
+     * @param i_OnlineMaxTimeLen  按活动时间计算，取多少时间范围内的在线用户（单位：秒）
+     * @return
+     */
+    @RequestMapping(value="report" ,method={RequestMethod.GET ,RequestMethod.POST})
+    @ResponseBody
+    public BaseResponse<List<ReportInfo>> getReport(@RequestParam(name="accessToken"      ,required=false) String i_AccessToken
+                                                   ,@RequestParam(name="onlineMaxTimeLen" ,required=false) Long   i_OnlineMaxTimeLen)
+    {
+        BaseResponse<List<ReportInfo>> v_RetResp = new BaseResponse<List<ReportInfo>>();
+        
+        if ( Help.isNull(i_AccessToken) )
+        {
+            return v_RetResp.setCode("-1").setMessage("访问票据无效或已过期");
+        }
+        
+        String v_AppKey = this.accessTokenService.getAppKey(i_AccessToken);
+        if ( v_AppKey == null )
+        {
+            return v_RetResp.setCode("-1").setMessage("访问票据无效或已过期");
+        }
+        
+        List<ReportInfo> v_Reports = this.reportService.reportOnlineUsers(i_OnlineMaxTimeLen * 1000);
+        return v_RetResp.setData(v_Reports);
     }
     
 }
