@@ -27,6 +27,10 @@
             </cluster>
         </clusters>
         
+        
+        <!-- 分析中心的集群服务的别名 -->
+        <clusters id="XJava_ClusterServers" this="MS_XSSO_ServerCluster" />
+        
     </xconfig>
     
 </config>

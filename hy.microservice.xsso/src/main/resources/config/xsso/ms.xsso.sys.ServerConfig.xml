@@ -19,6 +19,10 @@
             <password encrypt="org.hy.common.StringHelp">ff0mxoa9vUTF7D%</password>
         </serverUser>
         
+        
+        <!-- 分析中心的集群登录用户的别名 -->
+        <clusters id="XJava_LoginRequest" this="MS_XSSO_ServerUser" />
+        
     
         <ClusterValidate id="ClusterValidate" class="org.hy.microservice.xsso.cluster.ClusterValidate">
             <constructor>
