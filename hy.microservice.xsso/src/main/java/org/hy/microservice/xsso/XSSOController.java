@@ -118,65 +118,74 @@ public class XSSOController
     @ResponseBody
     public BaseResponse<TokenInfo> getAccessToken(TokenInfo i_Token)
     {
+        $Logger.debug("getAccessToken S.");
+        
         BaseResponse<TokenInfo> v_RetResp = new BaseResponse<TokenInfo>();
-        
-        long v_Now = Date.getNowTime().getTime();
-        
-        if ( i_Token == null )
-        {
-            return v_RetResp.setCode("-1").setMessage("未收到任何参数");
-        }
-        
-        if ( Help.isNull(i_Token.getAppKey()) || !appKeys.containsKey(i_Token.getAppKey()) )
-        {
-            return v_RetResp.setCode("-2").setMessage("AppKey无效");
-        }
-        
-        if ( Help.isNull(i_Token.getTimestamp())
-          || i_Token.getTimestamp() > v_Now + 1000 * 60 * 3
-          || i_Token.getTimestamp() < v_Now - 1000 * 60 * 3 )
-        {
-            return v_RetResp.setCode("-3").setMessage("时间戳无效或已过期").setRespTime(new Date());
-        }
-        
-        if ( Help.isNull(i_Token.getSignature()) )
-        {
-            return v_RetResp.setCode("-4").setMessage("签名不正确");
-        }
         
         try
         {
-            String  v_Code   = "appKey" + i_Token.getAppKey() + "timestamp" + i_Token.getTimestamp().longValue();
-            AppKey  v_AppKey = appKeys.get(i_Token.getAppKey());
-            boolean v_Verify = SignProvider.verify(v_AppKey.getPublicKey().getBytes() ,v_Code ,i_Token.getSignature().getBytes("UTF-8"));
-            if ( !v_Verify )
+            long v_Now = Date.getNowTime().getTime();
+            
+            if ( i_Token == null )
+            {
+                return v_RetResp.setCode("-1").setMessage("未收到任何参数");
+            }
+            
+            if ( Help.isNull(i_Token.getAppKey()) || !appKeys.containsKey(i_Token.getAppKey()) )
+            {
+                return v_RetResp.setCode("-2").setMessage("AppKey无效");
+            }
+            
+            if ( Help.isNull(i_Token.getTimestamp())
+              || i_Token.getTimestamp() > v_Now + 1000 * 60 * 3
+              || i_Token.getTimestamp() < v_Now - 1000 * 60 * 3 )
+            {
+                return v_RetResp.setCode("-3").setMessage("时间戳无效或已过期").setRespTime(new Date());
+            }
+            
+            if ( Help.isNull(i_Token.getSignature()) )
             {
                 return v_RetResp.setCode("-4").setMessage("签名不正确");
             }
             
-            v_RetResp.setData(new TokenInfo());
-            
-            if ( this.accessTokenService.existsAppKey(v_AppKey.getAppKey()) )
+            try
             {
-                v_RetResp.getData().getData().setAccessToken( this.accessTokenService.getTokenID(           v_AppKey.getAppKey()));
-                v_RetResp.getData().getData().setExpire((int)(this.accessTokenService.getTokenExpireTimeLen(v_AppKey.getAppKey()) / 1000));
+                String  v_Code   = "appKey" + i_Token.getAppKey() + "timestamp" + i_Token.getTimestamp().longValue();
+                AppKey  v_AppKey = appKeys.get(i_Token.getAppKey());
+                boolean v_Verify = SignProvider.verify(v_AppKey.getPublicKey().getBytes() ,v_Code ,i_Token.getSignature().getBytes("UTF-8"));
+                if ( !v_Verify )
+                {
+                    return v_RetResp.setCode("-5").setMessage("签名不正确");
+                }
+                
+                v_RetResp.setData(new TokenInfo());
+                
+                if ( this.accessTokenService.existsAppKey(v_AppKey.getAppKey()) )
+                {
+                    v_RetResp.getData().getData().setAccessToken( this.accessTokenService.getTokenID(           v_AppKey.getAppKey()));
+                    v_RetResp.getData().getData().setExpire((int)(this.accessTokenService.getTokenExpireTimeLen(v_AppKey.getAppKey()) / 1000));
+                }
+                else
+                {
+                    v_RetResp.getData().getData().setAccessToken(this.accessTokenService.makeToken(v_AppKey.getAppKey()));
+                    v_RetResp.getData().getData().setExpire(7200);
+                }
+                
+                // 生成临时登录Code（有效期：5分钟）
+                v_RetResp.getData().getData().setCode(this.codeService.makeCode(v_AppKey.getAppKey()));
+                return v_RetResp;
             }
-            else
+            catch (Exception exce)
             {
-                v_RetResp.getData().getData().setAccessToken(this.accessTokenService.makeToken(v_AppKey.getAppKey()));
-                v_RetResp.getData().getData().setExpire(7200);
+                $Logger.error(exce);
             }
             
-            // 生成临时登录Code（有效期：5分钟）
-            v_RetResp.getData().getData().setCode(this.codeService.makeCode(v_AppKey.getAppKey()));
-            return v_RetResp;
+            return v_RetResp.setCode("-999").setMessage("异常");
         }
-        catch (Exception exce)
+        finally
         {
-            $Logger.error(exce);
+            $Logger.debug("getAccessToken F. " + v_RetResp.getCode() + v_RetResp.getMessage());
         }
-        
-        return v_RetResp.setCode("-999").setMessage("异常");
     }
     
     
@@ -195,25 +204,34 @@ public class XSSOController
     @ResponseBody
     public BaseResponse<TokenInfo> getAppKey(@RequestParam(name="token" ,required=false) String i_AccessToken)
     {
+        $Logger.debug("getAppKey S.");
+        
         BaseResponse<TokenInfo> v_RetResp = new BaseResponse<TokenInfo>();
         
-        if ( Help.isNull(i_AccessToken) )
+        try
         {
-            return v_RetResp.setCode("-1").setMessage("票据无效或已过期");
+            if ( Help.isNull(i_AccessToken) )
+            {
+                return v_RetResp.setCode("-1").setMessage("票据无效或已过期");
+            }
+            
+            String v_AppKey        = this.accessTokenService.getAppKey(             i_AccessToken);
+            long   v_ExpireTimeLen = this.accessTokenService.getAppKeyExpireTimeLen(i_AccessToken);
+            if ( v_AppKey == null || v_ExpireTimeLen <= 0 )
+            {
+                return v_RetResp.setCode("-2").setMessage("票据无效或已过期");
+            }
+            
+            v_RetResp.setData(new TokenInfo());
+            v_RetResp.getData().getData().setAppKey(v_AppKey);
+            v_RetResp.getData().getData().setExpire((int)(v_ExpireTimeLen / 1000));
+            
+            return v_RetResp;
         }
-        
-        String v_AppKey        = this.accessTokenService.getAppKey(             i_AccessToken);
-        long   v_ExpireTimeLen = this.accessTokenService.getAppKeyExpireTimeLen(i_AccessToken);
-        if ( v_AppKey == null || v_ExpireTimeLen <= 0 )
+        finally
         {
-            return v_RetResp.setCode("-1").setMessage("票据无效或已过期");
+            $Logger.debug("getAppKey F. " + v_RetResp.getCode() + v_RetResp.getMessage());
         }
-        
-        v_RetResp.setData(new TokenInfo());
-        v_RetResp.getData().getData().setAppKey(v_AppKey);
-        v_RetResp.getData().getData().setExpire((int)(v_ExpireTimeLen / 1000));
-        
-        return v_RetResp;
     }
     
     
@@ -235,40 +253,49 @@ public class XSSOController
                                                ,@RequestBody                               UserSSO i_UserSSO
                                                ,HttpServletRequest i_Request)
     {
+        $Logger.debug("setLoginUser S.");
+        
         BaseResponse<TokenInfo> v_RetResp = new BaseResponse<TokenInfo>();
         
-        if ( Help.isNull(i_Code) )
+        try
         {
-            return v_RetResp.setCode("-1").setMessage("临时登录Code无效或已过期");
+            if ( Help.isNull(i_Code) )
+            {
+                return v_RetResp.setCode("-1").setMessage("临时登录Code无效或已过期");
+            }
+            
+            String v_AppKey = this.codeService.getAppKey(i_Code);
+            if ( Help.isNull(v_AppKey) )
+            {
+                return v_RetResp.setCode("-2").setMessage("临时登录Code无效或已过期");
+            }
+            
+            if ( i_UserSSO == null )
+            {
+                return v_RetResp.setCode("-101").setMessage("用户信息为空");
+            }
+            
+            if ( !v_AppKey.equals(i_UserSSO.getAppKey()) )
+            {
+                return v_RetResp.setCode("-102").setMessage("非法访问");
+            }
+            
+            if ( Help.isNull(i_UserSSO.getUserId()) )
+            {
+                return v_RetResp.setCode("-103").setMessage("用户ID为空");
+            }
+            
+            i_UserSSO.setLoginTime(new Date());
+            v_RetResp.setData(new TokenInfo());
+            v_RetResp.getData().getData().setSessionToken(this.userService.usidMake(i_UserSSO));
+            v_RetResp.getData().getData().setExpire((int)userService.getMaxExpireTimeLen());
+            
+            return v_RetResp;
         }
-        
-        String v_AppKey = this.codeService.getAppKey(i_Code);
-        if ( Help.isNull(v_AppKey) )
+        finally
         {
-            return v_RetResp.setCode("-1").setMessage("临时登录Code无效或已过期");
+            $Logger.debug("setLoginUser F. " + v_RetResp.getCode() + v_RetResp.getMessage());
         }
-        
-        if ( i_UserSSO == null )
-        {
-            return v_RetResp.setCode("-101").setMessage("用户信息为空");
-        }
-        
-        if ( !v_AppKey.equals(i_UserSSO.getAppKey()) )
-        {
-            return v_RetResp.setCode("-102").setMessage("非法访问");
-        }
-        
-        if ( Help.isNull(i_UserSSO.getUserId()) )
-        {
-            return v_RetResp.setCode("-103").setMessage("用户ID为空");
-        }
-        
-        i_UserSSO.setLoginTime(new Date());
-        v_RetResp.setData(new TokenInfo());
-        v_RetResp.getData().getData().setSessionToken(this.userService.usidMake(i_UserSSO));
-        v_RetResp.getData().getData().setExpire((int)userService.getMaxExpireTimeLen());
-        
-        return v_RetResp;
     }
     
     
@@ -293,6 +320,8 @@ public class XSSOController
                                        ,HttpServletRequest                                 i_Request
                                        ,HttpServletResponse                                i_Response)
     {
+        $Logger.debug("binding S.");
+        
         HttpSession          v_Session     = i_Request.getSession();
         UserSSO              v_SessionUser = this.userService.sessionGetUser(v_Session);
         String               v_USID        = Help.NVL(i_USID ,i_USIDToken);
@@ -331,13 +360,13 @@ public class XSSOController
             else
             {
                 $Logger.info("全局会话票据为空。会话信息-" + (v_SessionUser != null ? "存在" : "没有"));
-                v_RetResp.setCode("-1").setMessage("");
+                v_RetResp.setCode("-2").setMessage("");
             }
         }
         catch (Exception exce)
         {
             $Logger.error(exce);
-            v_RetResp.setCode("-2").setMessage("");
+            v_RetResp.setCode("-3").setMessage("");
         }
         
         return v_RetResp;
@@ -364,6 +393,8 @@ public class XSSOController
                                      ,HttpServletRequest                                 i_Request
                                      ,HttpServletResponse                                i_Response)
     {
+        $Logger.debug("alive S.");
+        
         HttpSession          v_Session     = i_Request.getSession();
         UserSSO              v_SessionUser = null;
         UserSSO              v_USIDUser    = null;
@@ -442,6 +473,8 @@ public class XSSOController
     @RequestMapping(value="getUSID" ,method={RequestMethod.GET})
     public void getUSID(@RequestParam("SSOCallBack") String i_SSOCallBack ,HttpServletRequest i_Request ,HttpServletResponse i_Response)
     {
+        $Logger.debug("getUSID S.");
+        
         i_Response.reset();
         i_Response.setCharacterEncoding("UTF-8");
         i_Response.setContentType("text/javascript");
@@ -450,6 +483,8 @@ public class XSSOController
         String      v_SessionID   = null;
         UserSSO     v_SessionUser = this.userService.sessionGetUser(v_Session);
         UserSSO     v_USIDUser    = null;
+        String      v_Message     = "";
+        String      v_Ret         = "";
         
         try
         {
@@ -462,12 +497,13 @@ public class XSSOController
                     // 创建会话
                     this.userService.sessionAlive(v_Session ,v_USIDUser);
                     i_Response.getWriter().println(i_SSOCallBack + "('" + v_USIDUser.getUsid() + "');");
-                    $Logger.info("{} 全局会话有效，返回跨服务端的票据，并建立本地会话。" ,v_USIDUser.getUsid());
+                    v_Ret     = v_USIDUser.getUsid();
+                    v_Message = "{} 全局会话有效，返回跨服务端的票据，并建立本地会话。" ;
                 }
                 else
                 {
                     i_Response.getWriter().println(i_SSOCallBack + "('');");
-                    $Logger.info("无全局会话，请登陆。");
+                    v_Message = "无全局会话，请登陆。";
                 }
             }
             else
@@ -476,15 +512,18 @@ public class XSSOController
                 if ( v_USIDUser != null )
                 {
                     i_Response.getWriter().println(i_SSOCallBack + "('" + v_SessionUser.getUsid() + "');");
-                    $Logger.info("{} 全局会话有效，返回票据。" ,v_SessionUser.getUsid());
+                    v_Ret     = v_SessionUser.getUsid();
+                    v_Message = "{} 全局会话有效，返回票据。";
                 }
                 else
                 {
                     this.userService.sessionRemove(v_Session);
-                    $Logger.info("{} 全局会话已失效。" ,v_SessionUser.getUsid());
+                    v_Message = "{} 全局会话已失效。";
                     i_Response.getWriter().println(i_SSOCallBack + "('');");
                 }
             }
+            
+            $Logger.debug(v_Message ,v_Ret);
         }
         catch (Exception exce)
         {
@@ -508,60 +547,69 @@ public class XSSOController
      * @param i_USIDToken    会话级票据，与i_USID        同义，传送两参数任何一个即可，仅为支持老接口而并存
      * @return
      */
-    @RequestMapping(value="getLoginUser" ,method={RequestMethod.GET ,RequestMethod.POST})
+    @RequestMapping(value="getLoginUser" ,method={RequestMethod.GET})
     @ResponseBody
     public BaseResponse<UserSSO> getLoginUser(@RequestParam(name="accessToken" ,required=false) String i_AccessToken
                                              ,@RequestParam(name="USID"        ,required=false) String i_USID
                                              ,@RequestParam(name="token"       ,required=false) String i_USIDToken)
     {
+        $Logger.debug("getLoginUser S.");
+        
         BaseResponse<UserSSO> v_RetResp  = new BaseResponse<UserSSO>();
         String                v_USID     = Help.NVL(i_USID ,i_USIDToken);
         UserSSO               v_USIDUser = null;
         
-        if ( Help.isNull(i_AccessToken) )
-        {
-            if ( Help.isNull(v_USID) )
-            {
-                return v_RetResp.setCode("-2").setMessage(v_USID + " 会议票据无效或已过期");
-            }
-            
-            v_USIDUser = this.userService.usidGetUser(v_USID);
-            if ( v_USIDUser == null )
-            {
-                return v_RetResp.setCode("-2").setMessage(v_USID + " 会议票据无效或已过期");
-            }
-        }
-        else
+        try
         {
             if ( Help.isNull(i_AccessToken) )
             {
-                return v_RetResp.setCode("-1").setMessage("访问票据无效或已过期");
+                if ( Help.isNull(v_USID) )
+                {
+                    return v_RetResp.setCode("-6").setMessage(v_USID + " 会议票据无效或已过期");
+                }
+                
+                v_USIDUser = this.userService.usidGetUser(v_USID);
+                if ( v_USIDUser == null )
+                {
+                    return v_RetResp.setCode("-7").setMessage(v_USID + " 会议票据无效或已过期");
+                }
+            }
+            else
+            {
+                if ( Help.isNull(i_AccessToken) )
+                {
+                    return v_RetResp.setCode("-1").setMessage("访问票据无效或已过期");
+                }
+                
+                String v_AppKey = this.accessTokenService.getAppKey(i_AccessToken);
+                if ( v_AppKey == null )
+                {
+                    return v_RetResp.setCode("-2").setMessage("访问票据无效或已过期");
+                }
+                
+                if ( Help.isNull(v_USID) )
+                {
+                    return v_RetResp.setCode("-3").setMessage(v_USID + " 会议票据无效或已过期");
+                }
+                
+                v_USIDUser = this.userService.usidGetUser(v_USID);
+                if ( v_USIDUser == null )
+                {
+                    return v_RetResp.setCode("-4").setMessage(v_USID + " 会议票据无效或已过期");
+                }
+                
+                if ( !v_AppKey.equals(v_USIDUser.getAppKey()) )
+                {
+                    return v_RetResp.setCode("-5").setMessage(v_USID + " 访问票据与会议票据不能跨系统使用");
+                }
             }
             
-            String v_AppKey = this.accessTokenService.getAppKey(i_AccessToken);
-            if ( v_AppKey == null )
-            {
-                return v_RetResp.setCode("-1").setMessage("访问票据无效或已过期");
-            }
-            
-            if ( Help.isNull(v_USID) )
-            {
-                return v_RetResp.setCode("-2").setMessage(v_USID + " 会议票据无效或已过期");
-            }
-            
-            v_USIDUser = this.userService.usidGetUser(v_USID);
-            if ( v_USIDUser == null )
-            {
-                return v_RetResp.setCode("-2").setMessage(v_USID + " 会议票据无效或已过期");
-            }
-            
-            if ( !v_AppKey.equals(v_USIDUser.getAppKey()) )
-            {
-                return v_RetResp.setCode("-3").setMessage(v_USID + " 访问票据与会议票据不能跨系统使用");
-            }
+            return v_RetResp.setData(v_USIDUser);
         }
-        
-        return v_RetResp.setData(v_USIDUser);
+        finally
+        {
+            $Logger.debug("getLoginUser F. " + v_RetResp.getCode() + v_RetResp.getMessage());
+        }
     }
     
     
@@ -584,6 +632,8 @@ public class XSSOController
                                            ,HttpServletRequest                                 i_Request
                                            ,HttpServletResponse                                i_Response)
     {
+        $Logger.debug("logoutUser S.");
+        
         BaseResponse<UserSSO> v_RetResp = new BaseResponse<UserSSO>();
         String                v_USID    = Help.NVL(i_USID ,i_USIDToken);
         
@@ -625,11 +675,13 @@ public class XSSOController
      * @param i_OnlineMaxTimeLen  按活动时间计算，取多少时间范围内的在线用户（单位：秒）
      * @return
      */
-    @RequestMapping(value="report" ,method={RequestMethod.GET ,RequestMethod.POST})
+    @RequestMapping(value="report" ,method={RequestMethod.GET})
     @ResponseBody
     public BaseResponse<List<ReportInfo>> getReport(@RequestParam(name="accessToken"      ,required=false) String i_AccessToken
                                                    ,@RequestParam(name="onlineMaxTimeLen" ,required=false) Long   i_OnlineMaxTimeLen)
     {
+        $Logger.debug("getReport S.");
+        
         BaseResponse<List<ReportInfo>> v_RetResp = new BaseResponse<List<ReportInfo>>();
         
         if ( Help.isNull(i_AccessToken) )
@@ -640,10 +692,12 @@ public class XSSOController
         String v_AppKey = this.accessTokenService.getAppKey(i_AccessToken);
         if ( v_AppKey == null )
         {
-            return v_RetResp.setCode("-1").setMessage("访问票据无效或已过期");
+            return v_RetResp.setCode("-2").setMessage("访问票据无效或已过期");
         }
         
         List<ReportInfo> v_Reports = this.reportService.reportOnlineUsers(i_OnlineMaxTimeLen * 1000);
+        
+        $Logger.debug("getReport F. " + v_Reports.size());
         return v_RetResp.setData(v_Reports);
     }
     

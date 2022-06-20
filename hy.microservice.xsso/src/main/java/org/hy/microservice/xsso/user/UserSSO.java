@@ -5,6 +5,8 @@ import java.util.Map;
 import org.hy.common.Date;
 import org.hy.common.xml.SerializableDef;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 
 
 
@@ -72,6 +74,9 @@ public class UserSSO extends SerializableDef
     /** 用户在第三方系统的用户来源 */
     private String userSource;
     
+    /** 用户在第三方系统的用户域（一号多重身份） */
+    private Map<String ,String> userDomain;
+    
     /** 用户在第三方系统的登陆账号 */
     private String loginAccount;
     
@@ -97,9 +102,11 @@ public class UserSSO extends SerializableDef
     private String sessionID;
     
     /** 登录时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss" ,timezone = "GMT+8")
     private Date loginTime;
     
     /** 活动时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss" ,timezone = "GMT+8")
     private Date aliveTime;
     
     /** 附加用户数据 */
@@ -621,6 +628,7 @@ public class UserSSO extends SerializableDef
      * 
      * @param loginTime
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss" ,timezone = "GMT+8")
     public void setLoginTime(Date loginTime)
     {
         this.loginTime = loginTime;
@@ -641,6 +649,7 @@ public class UserSSO extends SerializableDef
      * 
      * @param aliveTime
      */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss" ,timezone = "GMT+8")
     public void setAliveTime(Date aliveTime)
     {
         this.aliveTime = aliveTime;
@@ -664,6 +673,26 @@ public class UserSSO extends SerializableDef
     public void setIp(String i_Ip)
     {
         this.ip = i_Ip;
+    }
+
+
+    /**
+     * 获取：用户在第三方系统的用户域（一号多重身份）
+     */
+    public Map<String ,String> getUserDomain()
+    {
+        return userDomain;
+    }
+
+
+    /**
+     * 设置：用户在第三方系统的用户域（一号多重身份）
+     * 
+     * @param userDomain
+     */
+    public void setUserDomain(Map<String ,String> userDomain)
+    {
+        this.userDomain = userDomain;
     }
 
 
