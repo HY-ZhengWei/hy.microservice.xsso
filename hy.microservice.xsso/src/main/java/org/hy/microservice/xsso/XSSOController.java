@@ -162,8 +162,9 @@ public class XSSOController
                 
                 if ( this.accessTokenService.existsAppKey(v_AppKey.getAppKey()) )
                 {
+                    long v_TokenExpireTimeLen = this.accessTokenService.getTokenExpireTimeLen(v_AppKey.getAppKey());
                     v_RetResp.getData().getData().setAccessToken( this.accessTokenService.getTokenID(           v_AppKey.getAppKey()));
-                    v_RetResp.getData().getData().setExpire((int)(this.accessTokenService.getTokenExpireTimeLen(v_AppKey.getAppKey()) / 1000));
+                    v_RetResp.getData().getData().setExpire((int)(v_TokenExpireTimeLen / 1000));
                 }
                 else
                 {

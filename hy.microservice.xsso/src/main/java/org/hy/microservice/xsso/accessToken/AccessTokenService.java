@@ -192,7 +192,7 @@ public class AccessTokenService
     {
         // $AppKeyToAccessTokenIDs.put(i_AppKey  ,i_TokenID ,Integer.parseInt(tokenTimeOut.getValue()));
         // $AccessTokenIDToAppKeys.put(i_TokenID ,i_AppKey  ,Integer.parseInt(tokenTimeOut.getValue()));
-        XJava.getSessionMap().put(i_TokenID ,i_AppKey  ,this.getAccessTokenTimeOut());
+        XJava.getSessionMap().put(i_AppKey  ,i_TokenID  ,this.getAccessTokenTimeOut());
         XJava.getSessionMap().put(i_TokenID ,i_AppKey  ,this.getAccessTokenTimeOut());
         
         // 同时，向单点集群（服务端）同步会话
