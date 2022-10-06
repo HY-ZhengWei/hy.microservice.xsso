@@ -38,6 +38,9 @@ public class UserSSO extends SerializableDef
     /** 用户在第三方系统的编码 */
     private String userCode;
     
+    /** 系统ID */
+    private String systemID;
+    
     /** 微信应用编号 */
     private String appID;
     
@@ -108,6 +111,9 @@ public class UserSSO extends SerializableDef
     /** 活动时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss" ,timezone = "GMT+8")
     private Date aliveTime;
+    
+    /** 其它数据 */
+    private String other;
     
     /** 附加用户数据 */
     private Map<String ,String> datas;
@@ -435,6 +441,26 @@ public class UserSSO extends SerializableDef
 
     
     /**
+     * 获取：系统ID
+     */
+    public String getSystemID()
+    {
+        return systemID;
+    }
+
+    
+    /**
+     * 设置：系统ID
+     * 
+     * @param i_SystemID
+     */
+    public void setSystemID(String i_SystemID)
+    {
+        this.systemID = i_SystemID;
+    }
+
+
+    /**
      * 获取：会话票据
      */
     public String getUsid()
@@ -693,6 +719,26 @@ public class UserSSO extends SerializableDef
     public void setUserDomain(Map<String ,String> userDomain)
     {
         this.userDomain = userDomain;
+    }
+
+    
+    /**
+     * 获取：其它数据
+     */
+    public String getOther()
+    {
+        return other;
+    }
+
+    
+    /**
+     * 设置：其它数据
+     * 
+     * @param i_Other
+     */
+    public void setOther(String i_Other)
+    {
+        this.other = i_Other;
     }
 
 

@@ -5,7 +5,7 @@
     
     <groupId>org</groupId>
     <artifactId>hy.microservice.xsso</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <packaging>war</packaging>                        <!-- Tomcat 启动Spring Boot Add ZhengWei(HY) 2019-01-13 -->
     
     <developers>
@@ -32,7 +32,12 @@
     </parent>
 
     <dependencies>
-    
+          <dependency>
+    <groupId>org.bytedeco</groupId>
+    <artifactId>javacv-platform</artifactId>
+    <version>1.5.7</version>
+  </dependency>
+        
         <!-- Tomcat 启动Spring Boot Add ZhengWei(HY) 2019-01-13 -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -172,7 +177,6 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.13.1</version>
             <scope>test</scope>
         </dependency>
       
