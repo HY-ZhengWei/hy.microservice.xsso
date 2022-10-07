@@ -22,6 +22,24 @@
 
 
 
+用户流程
+------
+  
+![image](./hy.microservice.xsso/doc/03.用户流程.png)
+
+
+
+
+
+应用端拦截器的逻辑
+------
+  
+![image](./hy.microservice.xsso/doc/04.应用端拦截器的逻辑.png)
+
+
+
+
+
 接口文档
 ------
   
