@@ -14,7 +14,7 @@ import org.hy.common.net.data.LoginResponse;
 import org.hy.common.xml.XJava;
 import org.hy.common.xml.annotation.Xjava;
 import org.hy.common.xml.log.Logger;
-import org.hy.microservice.xsso.user.UserSSO;
+import org.hy.microservice.common.user.UserSSO;
 
 
 

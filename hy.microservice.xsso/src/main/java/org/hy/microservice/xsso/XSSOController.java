@@ -15,12 +15,12 @@ import org.hy.common.license.KeyStore;
 import org.hy.common.license.SignProvider;
 import org.hy.common.xml.log.Logger;
 import org.hy.microservice.common.BaseResponse;
+import org.hy.microservice.common.user.UserSSO;
 import org.hy.microservice.xsso.accessToken.AccessTokenService;
 import org.hy.microservice.xsso.accessToken.CodeService;
 import org.hy.microservice.xsso.accessToken.TokenInfo;
 import org.hy.microservice.xsso.report.ReportInfo;
 import org.hy.microservice.xsso.report.ReportService;
-import org.hy.microservice.xsso.user.UserSSO;
 import org.hy.microservice.xsso.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -66,7 +66,7 @@ public class XSSOController
     private CodeService         codeService;
     
     @Autowired
-    @Qualifier("UserService")
+    @Qualifier("UserServiceXSSO")
     private UserService         userService;
     
     @Autowired
@@ -696,7 +696,7 @@ public class XSSOController
             return v_RetResp.setCode("-2").setMessage("访问票据无效或已过期");
         }
         
-        List<ReportInfo> v_Reports = this.reportService.reportOnlineUsers(i_OnlineMaxTimeLen * 1000);
+        List<ReportInfo> v_Reports = this.reportService.reportOnlineUsers(i_OnlineMaxTimeLen == null ? null : i_OnlineMaxTimeLen * 1000);
         
         $Logger.debug("getReport F. " + v_Reports.size());
         return v_RetResp.setData(v_Reports);

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <properties>
+        <!-- 文件输出格式 -->
+        <property name="PATTERN">[%-5p] %d %l - %m%n</property>
+    </properties>
+
+    <appenders>
+        <Console name="CONSOLE" target="system_out">
+            <PatternLayout pattern="${PATTERN}"/>
+        </Console>
+        
+        <RollingFile name="logFile" fileName="../logs/msXSSO.log"
+            filePattern="../logs/msXSSO.%d{yyyy-MM-dd}.log" append="true">
+            <!-- 输出格式 -->
+            <PatternLayout pattern="%date{yyyy-MM-dd HH:mm:ss.SSS} %level [%thread][%file:%line] - %msg%n" />
+            <!-- 设置策略 -->
+            <Policies>
+                <!-- 基于时间的触发策略。每天生成一个日志文件 -->
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+            </Policies>
+            <DefaultRolloverStrategy max="3">
+                <Delete basePath="../logs/" maxDepth="1">
+                    <IfFileName glob="*.log"/>
+                    <IfLastModified age="72H" />
+                    <!-- 精确到小时, 写成123H, 精确到分钟，写成123m, 最近的文件还处于被占用状态,导致删除不成功!-->
+                </Delete>
+            </DefaultRolloverStrategy>
+            <Filters>
+                <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY" />
+            </Filters>
+        </RollingFile>
+    </appenders>
+
+    <loggers>
+        <logger name="org.hy.common" level="info" additivity="false">
+            <AppenderRef ref="CONSOLE" />
+            <AppenderRef ref="logFile"/>
+        </logger>
+        
+        <logger name="org.hy.microservice.xsso" level="debug" additivity="false">
+            <AppenderRef ref="CONSOLE" />
+            <AppenderRef ref="logFile"/>
+        </logger>
+        
+        <root level="info">
+            <appenderref ref="CONSOLE"/>
+            <AppenderRef ref="logFile"/>
+        </root>
+    </loggers>
+    
+</configuration>

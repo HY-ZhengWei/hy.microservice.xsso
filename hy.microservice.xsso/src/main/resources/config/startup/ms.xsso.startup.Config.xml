@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config>
+
+    <import name="xconfig"         class="java.util.ArrayList" />
+    <import name="startupConfig"   class="java.util.ArrayList" />
+    <import name="item"            class="org.hy.common.app.Param" />
+    
+    
+    
+    <!-- 启动加载XML配置信息的列表 -->
+    <xconfig>
+        
+        <startupConfig id="StartupConfig_MS_Common" this="StartupConfig_MS_Common">
+            
+            <item if="IsInitDSG_MS_XSSO.getValue == 启用">
+                <value>config/xsso/ms.xsso.sys.DB.Config.xml</value>
+            </item>
+            
+            <item>
+                <value>config/xsso/ms.xsso.appKey.Config.xml</value>
+            </item>
+            
+            <item>
+                <value>config/xsso/ms.xsso.sys.ServerConfig.xml</value>
+            </item>
+            
+            <item>
+                <value>config/xsso/ms.xsso.sys.ServerCluster.xml</value>
+            </item>
+            
+            <item>
+                <value>config/xsso/ms.xsso.AnalysesCatalogue.xml</value>
+            </item>
+            
+        </startupConfig>
+        
+    </xconfig>
+    
+</config>

@@ -9,7 +9,7 @@ import org.hy.common.Date;
 import org.hy.common.Help;
 import org.hy.common.xml.XJava;
 import org.hy.common.xml.annotation.Xjava;
-import org.hy.microservice.xsso.user.UserSSO;
+import org.hy.microservice.common.user.UserSSO;
 
 
 

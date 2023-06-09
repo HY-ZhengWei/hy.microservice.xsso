@@ -4,9 +4,9 @@ import javax.servlet.http.HttpSession;
 
 import org.hy.common.Help;
 import org.hy.common.StringHelp;
-import org.hy.common.app.Param;
 import org.hy.common.xml.XJava;
 import org.hy.common.xml.annotation.Xjava;
+import org.hy.microservice.common.user.UserSSO;
 import org.hy.microservice.xsso.cluster.ClusterService;
 
 
@@ -20,25 +20,9 @@ import org.hy.microservice.xsso.cluster.ClusterService;
  * @createDate  2021-02-02
  * @version     v1.0
  */
-@Xjava
-public class UserService
+@Xjava(id="UserServiceXSSO")
+public class UserService extends org.hy.microservice.common.user.UserService
 {
-    /** 登陆的Session会话ID标识，标识着是否登陆成功 */
-    public  static final String $SessionID = "$XSSO$";
-    
-    /** 全局会话票据的前缀 */
-    public  static final String $USID      = "USID";
-    
-    /** 本地会话票据的前缀 */
-    public  static final String $SID       = "SID";
-    
-    
-    
-    /**
-     * 票据有效时长（单位：秒）
-     */
-    @Xjava(ref="MS_XSSO_SessionTimeOut")
-    private Param          sessionTimeOut;
     
     @Xjava
     private ClusterService clusterService;
@@ -81,10 +65,10 @@ public class UserService
             return;
         }
         
-        XJava.putObject(i_USID ,i_User ,Integer.parseInt(sessionTimeOut.getValue()));
+        XJava.putObject(i_USID ,i_User ,this.getMaxExpireTimeLen());
         
         // 同时，向单点集群（服务端）同步会话
-        this.clusterService.aliveCluster(i_USID ,i_User ,getMaxExpireTimeLen());
+        this.clusterService.aliveCluster(i_USID ,i_User ,this.getMaxExpireTimeLen());
     }
     
     
@@ -148,22 +132,6 @@ public class UserService
     
     
     /**
-     * 全局会话 & 本地会话：获取默认会话最大有效时长（单位：秒）
-     * 
-     * @author      ZhengWei(HY)
-     * @createDate  2021-03-03
-     * @version     v1.0
-     *
-     * @return
-     */
-    public long getMaxExpireTimeLen()
-    {
-        return Long.parseLong(sessionTimeOut.getValue());
-    }
-    
-    
-    
-    /**
      * 本地会话：获取会话ID
      * 
      * @author      ZhengWei(HY)
@@ -173,6 +141,7 @@ public class UserService
      * @param i_Session
      * @return
      */
+    @Override
     public String sessionGetID(final HttpSession i_Session)
     {
         return $SID + i_Session.getId();
@@ -193,11 +162,11 @@ public class UserService
     public void sessionAlive(final HttpSession i_Session ,UserSSO io_User)
     {
         io_User.setSessionID(this.sessionGetID(i_Session));
-        i_Session.setMaxInactiveInterval(Integer.parseInt(sessionTimeOut.getValue()));
+        i_Session.setMaxInactiveInterval((int) this.getMaxExpireTimeLen());
         i_Session.setAttribute($SessionID ,io_User);
         
         // 同时，向单点集群（服务端）同步会话。但此处是按 SessionID 同步的但
-        this.clusterService.aliveCluster(io_User.getSessionID() ,io_User ,getMaxExpireTimeLen());
+        this.clusterService.aliveCluster(io_User.getSessionID() ,io_User ,this.getMaxExpireTimeLen());
     }
     
     
@@ -212,6 +181,7 @@ public class UserService
      * @param i_Session
      * @return
      */
+    @Override
     public UserSSO sessionGetUser(final HttpSession i_Session)
     {
         return (UserSSO)i_Session.getAttribute($SessionID);
@@ -229,6 +199,7 @@ public class UserService
      * @param i_Session
      * @return
      */
+    @Override
     public void sessionRemove(final HttpSession i_Session)
     {
         i_Session.removeAttribute($SessionID);
