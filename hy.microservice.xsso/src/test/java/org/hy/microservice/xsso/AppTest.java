@@ -1,7 +1,5 @@
 package org.hy.microservice.xsso;
 
-import org.bytedeco.opencv.opencv_core.MatVector;
-
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -34,7 +32,7 @@ public class AppTest
      * Rigourous Test :-)
      */
     public void testApp()
-    {MatVector m;
+    {
         assertTrue( true );
     }
 }

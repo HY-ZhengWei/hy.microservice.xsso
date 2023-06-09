@@ -36,11 +36,6 @@
     </parent>
 
     <dependencies>
-          <dependency>
-    <groupId>org.bytedeco</groupId>
-    <artifactId>javacv-platform</artifactId>
-    <version>1.5.7</version>
-  </dependency>
         
         <!-- Tomcat 启动Spring Boot Add ZhengWei(HY) 2019-01-13 -->
         <dependency>
