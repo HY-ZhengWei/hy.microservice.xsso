@@ -62,8 +62,8 @@
             </item>
             
             
-            <item id="MS_Message_IsCheckToken" this="MS_Common_IsCheckToken">
-                <name>MS_Message_IsCheckToken</name>
+            <item id="MS_XSSO_IsCheckToken" this="MS_Common_IsCheckToken">
+                <name>MS_XSSO_IsCheckToken</name>
                 <value>false</value>
                 <comment>是否验证用户登录的票据</comment>
                 <onlyRead>true</onlyRead>
