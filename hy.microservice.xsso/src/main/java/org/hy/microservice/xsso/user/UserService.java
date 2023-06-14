@@ -21,11 +21,14 @@ import org.hy.microservice.xsso.cluster.ClusterService;
  * @version     v1.0
  */
 @Xjava(id="UserServiceXSSO")
-public class UserService extends org.hy.microservice.common.user.UserService
+public class UserService
 {
     
     @Xjava
     private ClusterService clusterService;
+    
+    @Xjava
+    private org.hy.microservice.common.user.UserService baseUserService;
     
     
     
@@ -41,7 +44,7 @@ public class UserService extends org.hy.microservice.common.user.UserService
      */
     public String usidMake(UserSSO i_User)
     {
-        String v_SessionToken = $USID + StringHelp.getUUID();
+        String v_SessionToken = org.hy.microservice.common.user.UserService.$USID + StringHelp.getUUID();
         this.usidAlive(v_SessionToken ,i_User);
         return v_SessionToken;
     }
@@ -65,10 +68,10 @@ public class UserService extends org.hy.microservice.common.user.UserService
             return;
         }
         
-        XJava.putObject(i_USID ,i_User ,this.getMaxExpireTimeLen());
+        XJava.putObject(i_USID ,i_User ,this.baseUserService.getMaxExpireTimeLen());
         
         // 同时，向单点集群（服务端）同步会话
-        this.clusterService.aliveCluster(i_USID ,i_User ,this.getMaxExpireTimeLen());
+        this.clusterService.aliveCluster(i_USID ,i_User ,this.baseUserService.getMaxExpireTimeLen());
     }
     
     
@@ -141,10 +144,9 @@ public class UserService extends org.hy.microservice.common.user.UserService
      * @param i_Session
      * @return
      */
-    @Override
     public String sessionGetID(final HttpSession i_Session)
     {
-        return $SID + i_Session.getId();
+        return this.baseUserService.sessionGetID(i_Session);
     }
     
     
@@ -162,11 +164,11 @@ public class UserService extends org.hy.microservice.common.user.UserService
     public void sessionAlive(final HttpSession i_Session ,UserSSO io_User)
     {
         io_User.setSessionID(this.sessionGetID(i_Session));
-        i_Session.setMaxInactiveInterval((int) this.getMaxExpireTimeLen());
-        i_Session.setAttribute($SessionID ,io_User);
+        i_Session.setMaxInactiveInterval((int) this.baseUserService.getMaxExpireTimeLen());
+        i_Session.setAttribute(org.hy.microservice.common.user.UserService.$SessionID ,io_User);
         
         // 同时，向单点集群（服务端）同步会话。但此处是按 SessionID 同步的但
-        this.clusterService.aliveCluster(io_User.getSessionID() ,io_User ,this.getMaxExpireTimeLen());
+        this.clusterService.aliveCluster(io_User.getSessionID() ,io_User ,this.baseUserService.getMaxExpireTimeLen());
     }
     
     
@@ -181,10 +183,9 @@ public class UserService extends org.hy.microservice.common.user.UserService
      * @param i_Session
      * @return
      */
-    @Override
     public UserSSO sessionGetUser(final HttpSession i_Session)
     {
-        return (UserSSO)i_Session.getAttribute($SessionID);
+        return this.baseUserService.sessionGetUser(i_Session);
     }
     
     
@@ -199,11 +200,25 @@ public class UserService extends org.hy.microservice.common.user.UserService
      * @param i_Session
      * @return
      */
-    @Override
     public void sessionRemove(final HttpSession i_Session)
     {
-        i_Session.removeAttribute($SessionID);
-        i_Session.invalidate();
+        this.baseUserService.sessionRemove(i_Session);
+    }
+    
+    
+    
+    /**
+     * 全局会话 & 本地会话：获取默认会话最大有效时长（单位：秒）
+     * 
+     * @author      ZhengWei(HY)
+     * @createDate  2021-03-03
+     * @version     v1.0
+     *
+     * @return
+     */
+    public long getMaxExpireTimeLen()
+    {
+        return this.baseUserService.getMaxExpireTimeLen();
     }
     
 }
