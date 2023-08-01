@@ -11,11 +11,11 @@
     <!-- 数据库配置信息 -->
     <sqls>
 
-        <dataSource id="DS_MS_XSSO_FMS" >
+        <dataSource id="DS_MS_XSSO" >
             <driverClassName>com.mysql.cj.jdbc.Driver</driverClassName>
-            <url><![CDATA[jdbc:mysql://192.168.0.14:3306/xsso?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8]]></url>
-            <username encrypt="org.hy.common.StringHelp">encrypt:nAu3fRHpzpA=</username>
-            <password encrypt="org.hy.common.StringHelp">encrypt:7aNu3b9WFRDrm7pQqBkevw==</password>
+            <url><![CDATA[jdbc:mysql://192.168.19.4:3306/xsso?useUnicode=true&characterEncoding=utf8&serverTimezone=GMT%2B8]]></url>
+            <username encrypt="org.hy.common.StringHelp">encrypt:bGh/gUSsuY0=</username>
+            <password encrypt="org.hy.common.StringHelp">encrypt:DhoOWHpOM3kwMqxgZtJVcg==</password>
             <filters>stat,wall,log4j2</filters>
             <initialSize>5</initialSize>
             <minIdle>5</minIdle>
@@ -37,7 +37,7 @@
         <!-- 数据库连接池组 -->
         <dataSourceGroup id="DSG_MS_XSSO">
             <call name="add">
-                <dataSource ref="DS_MS_XSSO_FMS" />
+                <dataSource ref="DS_MS_XSSO" />
             </call>
         </dataSourceGroup>
         
