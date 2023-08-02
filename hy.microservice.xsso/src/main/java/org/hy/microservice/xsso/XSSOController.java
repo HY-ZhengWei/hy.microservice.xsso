@@ -44,7 +44,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @version     v1.0
  */
 @Controller
-@RequestMapping("xsso")
+@RequestMapping(value="xsso" ,name="单点登录")
 public class XSSOController
 {
     
@@ -85,7 +85,7 @@ public class XSSOController
      * @param i_PostInfo
      * @return
      */
-    @RequestMapping(value="createApp" ,method={RequestMethod.GET} ,produces=MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value="createApp" ,name="生成应用密钥对" ,method={RequestMethod.GET} ,produces=MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public BaseResponse<AppKey> createApp()
     {
@@ -114,7 +114,7 @@ public class XSSOController
      * @param i_Token  访问级的票据号
      * @return
      */
-    @RequestMapping(value="getAccessToken" ,method={RequestMethod.GET})
+    @RequestMapping(value="getAccessToken" ,name="获取访问级令牌" ,method={RequestMethod.GET})
     @ResponseBody
     public BaseResponse<TokenInfo> getAccessToken(TokenInfo i_Token)
     {
@@ -201,7 +201,7 @@ public class XSSOController
      * @param i_AccessToken  访问级的票据号
      * @return
      */
-    @RequestMapping(value="getAppKey" ,method={RequestMethod.GET})
+    @RequestMapping(value="getAppKey" ,name="判定访问级令牌" ,method={RequestMethod.GET})
     @ResponseBody
     public BaseResponse<TokenInfo> getAppKey(@RequestParam(name="token" ,required=false) String i_AccessToken)
     {
@@ -248,7 +248,7 @@ public class XSSOController
      * @param i_UserSSO  登录用户
      * @return
      */
-    @RequestMapping(value="setLoginUser" ,method={RequestMethod.POST} ,produces=MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(value="setLoginUser" ,name="用户登录" ,method={RequestMethod.POST} ,produces=MediaType.APPLICATION_JSON_VALUE)
     @ResponseBody
     public BaseResponse<TokenInfo> setLoginUser(@RequestParam(name="code" ,required=false) String  i_Code
                                                ,@RequestBody                               UserSSO i_UserSSO
@@ -314,7 +314,7 @@ public class XSSOController
      *
      * @return
      */
-    @RequestMapping(value="binding" ,method={RequestMethod.GET})
+    @RequestMapping(value="binding" ,name="绑定会话" ,method={RequestMethod.GET})
     @ResponseBody
     public BaseResponse<String> binding(@RequestParam(name="USID"  ,required=false) String i_USID
                                        ,@RequestParam(name="token" ,required=false) String i_USIDToken
@@ -387,7 +387,7 @@ public class XSSOController
      *
      * @return
      */
-    @RequestMapping(value="alive" ,method={RequestMethod.GET})
+    @RequestMapping(value="alive" ,name="会话保活" ,method={RequestMethod.GET})
     @ResponseBody
     public BaseResponse<String> alive(@RequestParam(name="USID"  ,required=false) String i_USID
                                      ,@RequestParam(name="token" ,required=false) String i_USIDToken
@@ -471,7 +471,7 @@ public class XSSOController
      *
      * @return
      */
-    @RequestMapping(value="getUSID" ,method={RequestMethod.GET})
+    @RequestMapping(value="getUSID" ,name="跨域获会话票据" ,method={RequestMethod.GET})
     public void getUSID(@RequestParam("SSOCallBack") String i_SSOCallBack ,HttpServletRequest i_Request ,HttpServletResponse i_Response)
     {
         $Logger.debug("getUSID S.");
@@ -548,7 +548,7 @@ public class XSSOController
      * @param i_USIDToken    会话级票据，与i_USID        同义，传送两参数任何一个即可，仅为支持老接口而并存
      * @return
      */
-    @RequestMapping(value="getLoginUser" ,method={RequestMethod.GET})
+    @RequestMapping(value="getLoginUser" ,name="获取登录用户" ,method={RequestMethod.GET})
     @ResponseBody
     public BaseResponse<UserSSO> getLoginUser(@RequestParam(name="accessToken" ,required=false) String i_AccessToken
                                              ,@RequestParam(name="USID"        ,required=false) String i_USID
@@ -566,13 +566,13 @@ public class XSSOController
             {
                 if ( Help.isNull(v_USID) )
                 {
-                    return v_RetResp.setCode("-6").setMessage(v_USID + " 会议票据无效或已过期");
+                    return v_RetResp.setCode("-6").setMessage(v_USID + " 会话票据无效或已过期");
                 }
                 
                 v_USIDUser = this.userService.usidGetUser(v_USID);
                 if ( v_USIDUser == null )
                 {
-                    return v_RetResp.setCode("-7").setMessage(v_USID + " 会议票据无效或已过期");
+                    return v_RetResp.setCode("-7").setMessage(v_USID + " 会话票据无效或已过期");
                 }
             }
             else
@@ -590,18 +590,18 @@ public class XSSOController
                 
                 if ( Help.isNull(v_USID) )
                 {
-                    return v_RetResp.setCode("-3").setMessage(v_USID + " 会议票据无效或已过期");
+                    return v_RetResp.setCode("-3").setMessage(v_USID + " 会话票据无效或已过期");
                 }
                 
                 v_USIDUser = this.userService.usidGetUser(v_USID);
                 if ( v_USIDUser == null )
                 {
-                    return v_RetResp.setCode("-4").setMessage(v_USID + " 会议票据无效或已过期");
+                    return v_RetResp.setCode("-4").setMessage(v_USID + " 会话票据无效或已过期");
                 }
                 
                 if ( !v_AppKey.equals(v_USIDUser.getAppKey()) )
                 {
-                    return v_RetResp.setCode("-5").setMessage(v_USID + " 访问票据与会议票据不能跨系统使用");
+                    return v_RetResp.setCode("-5").setMessage(v_USID + " 访问票据与会话票据不能跨系统使用");
                 }
             }
             
@@ -626,7 +626,7 @@ public class XSSOController
      * @param i_USIDToken  会话级票据，与i_USID        同义，传送两参数任何一个即可，仅为支持老接口而并存
      * @return
      */
-    @RequestMapping(value="logoutUser" ,method={RequestMethod.GET})
+    @RequestMapping(value="logoutUser" ,name="注销登录" ,method={RequestMethod.GET})
     @ResponseBody
     public BaseResponse<UserSSO> logoutUser(@RequestParam(name="USID"  ,required=false) String i_USID
                                            ,@RequestParam(name="token" ,required=false) String i_USIDToken
@@ -676,7 +676,7 @@ public class XSSOController
      * @param i_OnlineMaxTimeLen  按活动时间计算，取多少时间范围内的在线用户（单位：秒）
      * @return
      */
-    @RequestMapping(value="report" ,method={RequestMethod.GET})
+    @RequestMapping(value="report" ,name="登录用户统计" ,method={RequestMethod.GET})
     @ResponseBody
     public BaseResponse<List<ReportInfo>> getReport(@RequestParam(name="accessToken"      ,required=false) String i_AccessToken
                                                    ,@RequestParam(name="onlineMaxTimeLen" ,required=false) Long   i_OnlineMaxTimeLen)
