@@ -15,6 +15,90 @@
         <!-- 全小写匹配（请填写为小写的），并允许的配置，可配置多个 -->
         <dnsMap id="MS_Common_DNSConfigs" this="MS_Common_DNSConfigs" key="name">
             
+            <dns>
+                <name>fimeson.com</name>
+                <comment>菲麦森官网(顶级域名)</comment>
+            </dns>
+            
+            <dns>
+                <name>www.fimeson.com</name>
+                <comment>菲麦森官网</comment>
+            </dns>
+            
+            <dns>
+                <name>wzyb.com.cn</name>
+                <comment>吴忠仪表官网(顶级域名)</comment>
+            </dns>
+        
+            <dns>
+                <name>www.wzyb.com.cn</name>
+                <comment>吴忠仪表官网</comment>
+            </dns>
+            
+            <dns>
+                <name>xx.wzyb.com.cn</name>
+                <comment>智能选型</comment>
+            </dns>
+            
+            <dns>
+                <name>crm.wzyb.com.cn</name>
+                <comment>CRM系统</comment>
+            </dns>
+            
+            <dns>
+                <name>industry.wzyb.com.cn</name>
+                <comment>工业云</comment>
+            </dns>
+            
+            <dns>
+                <name>rs.wzyb.com.cn</name>
+                <comment>远程监造</comment>
+            </dns>
+            
+            <dns>
+                <name>sh.wzyb.com.cn</name>
+                <comment>上海公司</comment>
+            </dns>
+            
+            <dns>
+                <name>mes.wzyb.com.cn</name>
+                <comment>制造执行</comment>
+            </dns>
+            
+            <dns>
+                <name>wx.wzyb.com.cn</name>
+                <comment>微信接口</comment>
+            </dns>
+            
+            <dns>
+                <name>fmsfep.wzyb.com.cn</name>
+                <comment>fmsFep</comment>
+            </dns>
+            
+            <dns>
+                <name>xsso.wzyb.com.cn</name>
+                <comment>单点登录</comment>
+            </dns>
+            
+            <dns>
+                <name>report.wzyb.com.cn</name>
+                <comment>报表（仅内网有效）</comment>
+            </dns>
+        
+            <dns>
+                <name>mapp.wzyb.com.cn</name>
+                <comment>BRP的手机应用</comment>
+            </dns>
+        
+            <dns>
+                <name>vpnoa.wzyb.com.cn</name>
+                <comment>VPN OA</comment>
+            </dns>
+            
+            <dns>
+                <name>mail.wzyb.com.cn</name>
+                <comment>邮件（第三方）</comment>
+            </dns>
             
         </dnsMap>
         
@@ -23,6 +107,25 @@
         <!-- IP前缀匹配，并允许的配置，可配置多个 -->
         <dnsList id="MS_Common_DNSIPConfigs" this="MS_Common_DNSIPConfigs">
             
+            <dns>
+                <name>10.1.50.</name>
+                <comment>50段</comment>
+            </dns>
+            
+            <dns>
+                <name>10.1.20.</name>
+                <comment>20段</comment>
+            </dns>
+        
+            <dns>
+                <name>10.1.90.</name>
+                <comment>90段</comment>
+            </dns>
+            
+            <dns>
+                <name>10.1.85.</name>
+                <comment>85段</comment>
+            </dns>
             
         </dnsList>
         

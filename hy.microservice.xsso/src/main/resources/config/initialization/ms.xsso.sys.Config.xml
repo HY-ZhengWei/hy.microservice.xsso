@@ -70,6 +70,22 @@
             </item>
             
             
+            <item id="MS_Common_ApiUseMaxCountMinute" this="MS_Common_ApiUseMaxCountMinute">
+                <name>MS_Common_ApiUseMaxCountMinute</name>
+                <value>3000</value>
+                <comment>每个API接口每分钟最大允许的请求量</comment>
+                <onlyRead>true</onlyRead>
+            </item>
+            
+            
+            <item id="MS_Common_ApiUseMaxCountMinute10" this="MS_Common_ApiUseMaxCountMinute10">
+                <name>MS_Common_ApiUseMaxCountMinute10</name>
+                <value>15000</value>
+                <comment>每个API接口每10分钟最大允许的请求量</comment>
+                <onlyRead>true</onlyRead>
+            </item>
+            
+            
             <item id="MS_XSSO_ServerClusterTimeout">
                 <name>MS_XSSO_ServerClusterTimeout</name>
                 <value>60000</value>
