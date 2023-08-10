@@ -13,14 +13,14 @@
     
         <clusters id="MS_XSSO_ServerCluster">
             <cluster>
-                <host>127.0.0.1</host>
+                <host>10.1.50.242</host>
                 <port>3021</port>
                 <timeout>10000</timeout>
                 <comment>单点服务内网线路</comment>
             </cluster>
             
             <cluster>
-                <host>127.0.0.1</host>
+                <host>10.1.85.242</host>
                 <port>3021</port>
                 <timeout>10000</timeout>
                 <comment>单点服务外网线路</comment>

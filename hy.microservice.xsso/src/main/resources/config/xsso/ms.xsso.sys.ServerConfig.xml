@@ -42,7 +42,7 @@
         
             <item id="MS_XSSO_Server_WhoAmI">
                 <name>MS_XSSO_Server_WhoAmI</name>
-                <value>127.0.0.1</value>
+                <value>10.1.85.242</value>
                 <comment>在集群服务中标识出自己。请不要填写端口</comment>
             </item>
             
