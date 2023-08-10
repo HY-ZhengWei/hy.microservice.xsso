@@ -139,14 +139,14 @@
         <dependency>
             <groupId>cn.openapis</groupId>
             <artifactId>hy.microservice</artifactId>
-            <version>1.2.3</version>
+            <version>1.2.4</version>
             <type>war</type>
         </dependency>
         
         <dependency>
             <groupId>cn.openapis</groupId>
             <artifactId>hy.microservice</artifactId>
-            <version>1.2.3</version>
+            <version>1.2.4</version>
             <type>jar</type>
             <classifier>api</classifier>
         </dependency>
